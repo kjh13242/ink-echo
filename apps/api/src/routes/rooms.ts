@@ -55,7 +55,7 @@ export async function roomRoutes(app: FastifyInstance) {
         `INSERT INTO queue_tracks
            (id, room_id, added_by, youtube_id, title, artist, position)
          VALUES ($1, $2, $3, $4, $5, $6, 0)`,
-        [queueId, roomId, participantId, seedId, '시드 곡', '', 0]
+        [queueId, roomId, participantId, seedId, '시드 곡', '']
       )
     })
 

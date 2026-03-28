@@ -52,8 +52,7 @@ CREATE TABLE IF NOT EXISTS reactions (
   emoji          VARCHAR(10),
   queue_id       VARCHAR(16),
   is_active      BOOLEAN     NOT NULL DEFAULT TRUE,
-  created_at     TIMESTAMPTZ NOT NULL DEFAULT NOW(),
-  UNIQUE (room_id, participant_id, emoji) WHERE type = 'emoji'
+  created_at     TIMESTAMPTZ NOT NULL DEFAULT NOW()
 );
 
 -- V005: echo_cards
@@ -101,6 +100,7 @@ CREATE INDEX IF NOT EXISTS idx_queue_room_pos       ON queue_tracks(room_id, pos
 CREATE INDEX IF NOT EXISTS idx_queue_room_status    ON queue_tracks(room_id, status);
 CREATE INDEX IF NOT EXISTS idx_queue_added_by       ON queue_tracks(added_by);
 CREATE INDEX IF NOT EXISTS idx_reactions_room       ON reactions(room_id, type);
+CREATE UNIQUE INDEX IF NOT EXISTS idx_reactions_unique_emoji ON reactions(room_id, participant_id, emoji) WHERE type = 'emoji';
 CREATE INDEX IF NOT EXISTS idx_reactions_vote       ON reactions(queue_id, type, is_active);
 CREATE INDEX IF NOT EXISTS idx_echo_cards_room      ON echo_cards(room_id);
 CREATE INDEX IF NOT EXISTS idx_echo_cards_created   ON echo_cards(created_at DESC);

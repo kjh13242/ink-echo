@@ -1,0 +1,74 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  /* Light Mode CSS Variables */
+  --bg-base: #D8D4F0;
+  --bg-surface: #F4F2FF;
+  --bg-sheet: #F8F6FF;
+  --bg-input: #F0EEFF;
+  --bg-input-focus: #ECEAFF;
+  --color-cta: #7F77DD;
+  --color-cta-text: #FFFFFF;
+  --text-primary: #2A2660;
+  --text-secondary: #6B67A0;
+  --text-tertiary: #9490C0;
+  --text-placeholder: #B8B4D0;
+  --border-default: rgba(180, 176, 220, 0.55);
+  --border-focus: rgba(127, 119, 221, 0.6);
+  --color-error: #E24B4A;
+  --color-success: #1D9E75;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    /* Dark Mode — Black Base */
+    --bg-base: #0A0A0A;
+    --bg-surface: #111111;
+    --bg-sheet: #1A1A1A;
+    --bg-input: #1E1E1E;
+    --bg-input-focus: #2A2640;
+    --color-cta: #A89EF5;
+    --color-cta-text: #0A0A0A;
+    --text-primary: #F0EEFF;
+    --text-secondary: #A0A0C0;
+    --text-tertiary: #606080;
+    --text-placeholder: #404060;
+    --border-default: rgba(255, 255, 255, 0.08);
+    --border-focus: rgba(168, 158, 245, 0.5);
+    --color-error: #E24B4A;
+    --color-success: #1D9E75;
+  }
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  font-family: 'Apple SD Gothic Neo', 'Malgun Gothic', 'Noto Sans KR', sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  /* 모바일 탭 하이라이트 제거 */
+  -webkit-tap-highlight-color: transparent;
+}
+
+/* 스크롤바 숨김 (큐 리스트, 칩 등) */
+.scrollbar-hide {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+.scrollbar-hide::-webkit-scrollbar {
+  display: none;
+}
+
+/* 도트 그리드 배경 패턴 */
+.dot-grid {
+  background-image: radial-gradient(
+    circle,
+    rgba(127, 119, 221, 0.25) 1px,
+    transparent 1px
+  );
+  background-size: 20px 20px;
+}

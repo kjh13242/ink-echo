@@ -127,8 +127,9 @@ export default function RoomPage() {
         const { nextTrack } = p as { skippedQueueId: string; nextTrack: QueueTrack | null }
         if (nextTrack) {
           updateTrackStatus(nextTrack.queueId, 'playing')
+          setPlaying(true)
           loadVideo(nextTrack.youtubeId, nextTrack.durationSec)
-          if (isPlaying) play()
+          play()
         }
         break
       }
@@ -224,7 +225,7 @@ export default function RoomPage() {
       />
 
       {/* 재생 영역 */}
-      {currentTrack && (
+      {currentTrack ? (
         <>
           <NowPlaying
             track={currentTrack}
@@ -254,7 +255,30 @@ export default function RoomPage() {
             }}
           />
         </>
-      )}
+      ) : pendingTracks.length > 0 && permissions.canPlay ? (
+        <div className="px-4 py-4 bg-[var(--bg-surface)] border-b border-[var(--border-default)]
+                        flex items-center justify-between">
+          <div className="min-w-0">
+            <p className="text-body1 text-[var(--text-primary)] truncate">
+              {pendingTracks[0].title}
+            </p>
+            <p className="text-caption text-[var(--text-secondary)]">
+              {pendingTracks.length}곡 대기 중
+            </p>
+          </div>
+          <button
+            onClick={async () => {
+              await api.post(`/api/rooms/${roomId}/queue/skip`)
+            }}
+            className="flex-shrink-0 ml-3 w-10 h-10 flex items-center justify-center
+                       rounded-full bg-purple-500 text-white active:opacity-70 transition-opacity"
+          >
+            <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
+              <path d="M3 2l9 5-9 5V2z" fill="currentColor"/>
+            </svg>
+          </button>
+        </div>
+      ) : null}
 
       {/* 플레이리스트 */}
       <div className="flex-1 overflow-y-auto scrollbar-hide px-4 pb-24">

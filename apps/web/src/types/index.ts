@@ -162,6 +162,8 @@ export type WSEventType =
   | 'host:transfer'
   | 'room:full'
   | 'room:end'
+  | 'room:settings_update'
+  | 'info'
 
 export interface WSEvent {
   type: WSEventType

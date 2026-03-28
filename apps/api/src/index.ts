@@ -26,7 +26,6 @@ async function bootstrap() {
   await app.register(rateLimit, {
     max: 100,
     timeWindow: '1 minute',
-    redis,
   })
 
   await app.register(websocketPlugin)

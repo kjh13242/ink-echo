@@ -28,11 +28,13 @@ export default function RootLayout({
           async
         />
       </head>
-      <body className="bg-[#D8D4F0] min-h-screen">
-        <Providers>
-          {children}
-          <ToastContainer />
-        </Providers>
+      <body className="bg-[#1a1a2e] min-h-screen md:flex md:justify-center">
+        <div className="w-full md:max-w-[768px] md:relative min-h-screen">
+          <Providers>
+            {children}
+            <ToastContainer />
+          </Providers>
+        </div>
         {/* YouTube IFrame placeholder — 화면에 보이지 않음 */}
         <div id="yt-player" style={{ display: 'none' }} />
       </body>

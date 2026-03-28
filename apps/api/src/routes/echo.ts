@@ -30,20 +30,50 @@ export async function echoRoutes(app: FastifyInstance) {
     )
 
     const participantsRow = await query(
-      `SELECT p.nickname, p.avatar,
+      `SELECT p.id, p.nickname, p.avatar, p.is_host, p.join_order,
               COUNT(qt.id) as track_count
        FROM participants p
        LEFT JOIN queue_tracks qt ON qt.added_by = p.id AND qt.room_id = p.room_id
        WHERE p.room_id = $1
-       GROUP BY p.id, p.nickname, p.avatar, p.join_order
+       GROUP BY p.id, p.nickname, p.avatar, p.is_host, p.join_order
        ORDER BY p.join_order`,
       [cardRow.rows[0].room_id]
     )
 
+    const card = cardRow.rows[0]
     return reply.send(ok({
-      ...cardRow.rows[0],
-      topTracks: topTracksRow.rows,
-      participants: participantsRow.rows,
+      echoCardId: card.id,
+      roomId: card.room_id,
+      roomName: card.room_name,
+      hostNickname: card.host_nickname,
+      startedAt: card.started_at,
+      endedAt: card.ended_at,
+      durationMin: card.duration_min,
+      trackCount: card.track_count,
+      participantCount: card.participant_count,
+      totalReactions: card.total_reactions,
+      encoreCount: card.encore_count,
+      shareImageUrl: card.share_image_url,
+      topTracks: topTracksRow.rows.map((t) => ({
+        queueId: t.queue_id,
+        youtubeId: t.youtube_id,
+        title: t.title,
+        artist: t.artist,
+        addedByNickname: t.added_by_nickname,
+        message: t.message,
+        playOrder: t.play_order,
+        status: t.status,
+        reactionCount: t.reaction_count,
+        topEmoji: t.top_emoji,
+        isEncore: t.is_encore,
+      })),
+      participants: participantsRow.rows.map((p) => ({
+        participantId: p.id,
+        nickname: p.nickname,
+        avatar: p.avatar,
+        isHost: p.is_host,
+        joinOrder: p.join_order,
+      })),
     }))
   })
 

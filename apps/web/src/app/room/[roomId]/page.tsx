@@ -18,6 +18,8 @@ import { NowPlaying } from '@/components/room/main/NowPlaying'
 import { EmojiStack } from '@/components/room/main/EmojiStack'
 import { QueueList } from '@/components/room/main/QueueList'
 import { ParticipantBar } from '@/components/room/main/ParticipantBar'
+import { RoomSettingsSheet } from '@/components/room/main/RoomSettingsSheet'
+import { InviteSheet } from '@/components/invite/InviteSheet'
 
 export default function RoomPage() {
   const params = useParams()
@@ -319,6 +321,32 @@ export default function RoomPage() {
           onOtherTap={(id) => setParticipantTracksId(id)}
           onMeTap={() => setShowEmojiPopup(true)}
           onAddTrack={() => router.push(`/room/${roomId}/add`)}
+          onReact={async (emoji) => {
+            await api.post(`/api/rooms/${roomId}/reactions`, { emoji })
+          }}
+          onCancel={async (emoji) => {
+            await api.delete(`/api/rooms/${roomId}/reactions/${encodeURIComponent(emoji)}`)
+          }}
+        />
+      )}
+
+      {/* 초대 시트 */}
+      <InviteSheet
+        isOpen={showInvite}
+        onClose={() => setShowInvite(false)}
+        room={room}
+        participants={participants}
+      />
+
+      {/* 방 설정 시트 */}
+      {showSettings && (
+        <RoomSettingsSheet
+          isOpen={showSettings}
+          onClose={() => setShowSettings(false)}
+          settings={room.settings}
+          onSave={async (updated) => {
+            await api.put(`/api/rooms/${roomId}/settings`, updated)
+          }}
         />
       )}
 

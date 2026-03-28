@@ -13,6 +13,8 @@ interface ParticipantBarProps {
   onOtherTap: (participantId: string) => void
   onMeTap: () => void
   onAddTrack: () => void
+  onReact: (emoji: Emoji) => void
+  onCancel: (emoji: Emoji) => void
 }
 
 export function ParticipantBar({
@@ -21,6 +23,8 @@ export function ParticipantBar({
   onOtherTap,
   onMeTap,
   onAddTrack,
+  onReact,
+  onCancel,
 }: ParticipantBarProps) {
   const [showEmojiPopup, setShowEmojiPopup] = useState(false)
   const stack = useReactionStore((s) => s.stack)
@@ -71,6 +75,8 @@ export function ParticipantBar({
       {showEmojiPopup && (
         <EmojiPopup
           myReactions={myReactions}
+          onReact={onReact}
+          onCancel={onCancel}
           onClose={() => setShowEmojiPopup(false)}
         />
       )}
@@ -81,21 +87,17 @@ export function ParticipantBar({
 // ─── EmojiPopup ────────────────────────────────────────
 interface EmojiPopupProps {
   myReactions: Emoji[]
+  onReact: (emoji: Emoji) => void
+  onCancel: (emoji: Emoji) => void
   onClose: () => void
 }
 
-function EmojiPopup({ myReactions, onClose }: EmojiPopupProps) {
+function EmojiPopup({ myReactions, onReact, onCancel, onClose }: EmojiPopupProps) {
   const stack = useReactionStore((s) => s.stack)
 
   return (
     <>
-      {/* 배경 */}
-      <div
-        className="fixed inset-0 z-30"
-        onClick={onClose}
-      />
-
-      {/* 팝업 */}
+      <div className="fixed inset-0 z-30" onClick={onClose} />
       <div className="fixed bottom-20 left-4 right-4 max-w-[430px] mx-auto z-40
                       bg-[var(--bg-sheet)] rounded-card border border-[var(--border-default)]
                       p-4 shadow-lg
@@ -104,12 +106,15 @@ function EmojiPopup({ myReactions, onClose }: EmojiPopupProps) {
           {EMOJI_LIST.map((emoji) => {
             const isReacted = myReactions.includes(emoji)
             const stackItem = stack.find((r) => r.emoji === emoji)
-
             return (
               <button
                 key={emoji}
                 onClick={() => {
-                  // 선택 시 팝업 닫힘
+                  if (isReacted) {
+                    onCancel(emoji)
+                  } else {
+                    onReact(emoji)
+                  }
                   onClose()
                 }}
                 className={cn(

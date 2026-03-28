@@ -1,5 +1,5 @@
 import type { FastifyRequest } from 'fastify'
-import type { WebSocket } from 'ws'
+import type { SocketStream } from '@fastify/websocket'
 import { verifyToken } from '../lib/utils'
 import { redis, RedisKey, TTL } from '../db/redis'
 import { query } from '../db/client'
@@ -11,9 +11,10 @@ import {
 } from './broadcaster'
 
 export async function wsHandler(
-  ws: WebSocket,
+  connection: SocketStream,
   req: FastifyRequest
 ) {
+  const ws = connection.socket
   const url = new URL(req.url, 'http://localhost')
   const roomId = url.searchParams.get('room_id')
   const token  = url.searchParams.get('token')

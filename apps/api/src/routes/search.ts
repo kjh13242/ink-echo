@@ -64,7 +64,7 @@ export async function searchRoutes(app: FastifyInstance) {
       return reply.status(503).send(fail('YOUTUBE_API_ERROR', 'YouTube 검색에 실패했어요'))
     }
 
-    const ytData = await ytRes.json()
+    const ytData = await ytRes.json() as any
 
     // 영상 길이 조회 (videos API)
     const videoIds = ytData.items
@@ -74,7 +74,7 @@ export async function searchRoutes(app: FastifyInstance) {
     const detailRes = await fetch(
       `https://www.googleapis.com/youtube/v3/videos?part=contentDetails,status&id=${videoIds}&key=${ytKey}`
     )
-    const detailData = await detailRes.json()
+    const detailData = await detailRes.json() as any
 
     const durationMap: Record<string, number> = {}
     const availabilityMap: Record<string, boolean> = {}
@@ -166,7 +166,7 @@ export async function searchRoutes(app: FastifyInstance) {
       return reply.status(503).send(fail('YOUTUBE_API_ERROR', '추천 곡을 불러오지 못했어요'))
     }
 
-    const ytData = await ytRes.json()
+    const ytData = await ytRes.json() as any
     const tracks = ytData.items?.map((item: {
       id: { videoId: string }
       snippet: {

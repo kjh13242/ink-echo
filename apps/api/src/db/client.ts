@@ -26,7 +26,7 @@ export async function withTransaction<T>(
 }
 
 // 헬퍼: 단일 쿼리
-export async function query<T = Record<string, unknown>>(
+export async function query<T extends Record<string, any> = Record<string, any>>(
   text: string,
   values?: unknown[]
 ) {

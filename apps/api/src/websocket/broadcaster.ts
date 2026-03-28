@@ -49,7 +49,7 @@ export function sendTo(
   event: { type: string; payload?: unknown }
 ) {
   const ws = roomConnections.get(roomId)?.get(participantId)
-  if (ws?.readyState === ws?.OPEN) {
+  if (ws && ws.readyState === ws.OPEN) {
     ws.send(JSON.stringify(event))
   }
 }

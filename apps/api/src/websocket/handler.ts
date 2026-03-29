@@ -9,6 +9,7 @@ import {
   broadcast,
   sendTo,
 } from './broadcaster'
+import { toQueueTrack } from '../lib/utils'
 
 export async function wsHandler(
   connection: SocketStream,
@@ -71,8 +72,14 @@ export async function wsHandler(
     payload: {
       participantId,
       playback: playbackRaw,
-      queue: queueRows.rows,
-      participants: participantRows.rows,
+      queue: queueRows.rows.map(toQueueTrack),
+      participants: participantRows.rows.map((p) => ({
+        participantId: p.id,
+        nickname:      p.nickname,
+        avatar:        p.avatar,
+        isHost:        p.is_host,
+        joinOrder:     p.join_order,
+      })),
     },
   }))
 

@@ -2,7 +2,7 @@ import type { FastifyInstance } from 'fastify'
 import { query, withTransaction } from '../db/client'
 import { redis, RedisKey } from '../db/redis'
 import { authenticate } from '../lib/auth'
-import { generateId, ok, fail } from '../lib/utils'
+import { generateId, ok, fail, toQueueTrack } from '../lib/utils'
 import { broadcast } from '../websocket/broadcaster'
 
 type AuthRequest = { session: { participantId: string; roomId: string; isHost: boolean } }
@@ -93,7 +93,7 @@ export async function queueRoutes(app: FastifyInstance) {
         // WebSocket 브로드캐스트
         broadcast(roomId, {
           type: 'queue:add',
-          payload: inserted.rows[0],
+          payload: toQueueTrack(inserted.rows[0]),
         })
 
         nextPos++
@@ -230,7 +230,10 @@ export async function queueRoutes(app: FastifyInstance) {
 
     broadcast(roomId, {
       type: 'playback:skip',
-      payload: { skippedQueueId: currentQueueId, nextTrack },
+      payload: {
+        skippedQueueId: currentQueueId,
+        nextTrack: nextTrack ? toQueueTrack(nextTrack) : null,
+      },
     })
 
     return reply.send(ok({ nextTrack }))

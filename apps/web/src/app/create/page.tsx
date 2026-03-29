@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import { Button } from '@/components/common/Button'
 import { Avatar } from '@/components/common/Avatar'
@@ -17,8 +17,13 @@ export default function CreatePage() {
   const { setRoom, setSession, addParticipant } = useRoomStore()
   const showToast = useToastStore((s) => s.showToast)
 
-  const [roomName, setRoomName] = useState(generateRoomName)
-  const [nickname, setNickname] = useState(generateNickname)
+  const [roomName, setRoomName] = useState('')
+  const [nickname, setNickname] = useState('')
+
+  useEffect(() => {
+    setRoomName(generateRoomName())
+    setNickname(generateNickname())
+  }, [])
   const [avatar, setAvatar] = useState<AvatarType>('purple')
   const [isLoading, setIsLoading] = useState(false)
   const [isRefreshing, setIsRefreshing] = useState(false)

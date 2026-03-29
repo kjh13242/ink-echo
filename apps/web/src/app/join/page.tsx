@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import { Button } from '@/components/common/Button'
 import { Avatar } from '@/components/common/Avatar'
@@ -19,7 +19,11 @@ export default function JoinPage() {
   const showToast = useToastStore((s) => s.showToast)
 
   const [code, setCode] = useState('')
-  const [nickname, setNickname] = useState(generateNickname)
+  const [nickname, setNickname] = useState('')
+
+  useEffect(() => {
+    setNickname(generateNickname())
+  }, [])
   const [avatar, setAvatar] = useState<AvatarType>('purple')
   const [isLoading, setIsLoading] = useState(false)
   const [codeError, setCodeError] = useState<string | null>(null)

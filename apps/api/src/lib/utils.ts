@@ -92,6 +92,31 @@ export function fail(code: string, message: string) {
   return { success: false, data: null, error: { code, message } }
 }
 
+// ── DB row → QueueTrack (camelCase 변환) ──────────────
+// queue_tracks JOIN participants 쿼리 결과(snake_case)를
+// 프론트 QueueTrack 타입으로 변환
+export function toQueueTrack(row: Record<string, unknown>) {
+  return {
+    queueId:      row.id,
+    position:     row.position,
+    youtubeId:    row.youtube_id,
+    title:        row.title,
+    artist:       row.artist,
+    thumbnailUrl: row.thumbnail_url,
+    durationSec:  row.duration_sec,
+    message:      row.message ?? null,
+    addedBy: {
+      participantId: row.added_by,
+      nickname:      row.nickname,
+      avatar:        row.avatar,
+      isHost:        row.is_host,
+      joinOrder:     row.join_order ?? 0,
+    },
+    voteCount: row.vote_count,
+    status:    row.status,
+  }
+}
+
 // ── 기본 방 설정 ──────────────────────────────────────
 export const DEFAULT_SETTINGS = {
   playbackControl: 'all',

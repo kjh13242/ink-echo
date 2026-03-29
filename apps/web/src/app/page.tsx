@@ -3,13 +3,13 @@ import { Button } from '@/components/common/Button'
 
 export default function LandingPage() {
   return (
-    <main className="dot-grid min-h-screen flex flex-col items-center justify-center px-5">
+    <main className="dot-grid bg-[var(--bg-base)] min-h-screen flex flex-col items-center justify-center px-5">
       {/* 로고 */}
       <div className="mb-12 text-center">
-        <h1 className="text-[28px] font-semibold text-purple-900 font-[Arial] tracking-tight mb-1">
+        <h1 className="text-[28px] font-semibold text-[var(--text-primary)] font-[Arial] tracking-tight mb-1">
           Ink & Echo
         </h1>
-        <p className="text-[12px] text-purple-500">
+        <p className="text-[12px] text-[var(--text-secondary)]">
           함께 고르고, 반응하고, 기억하는 플레이리스트
         </p>
       </div>
@@ -22,7 +22,7 @@ export default function LandingPage() {
       </div>
 
       {/* CTA */}
-      <div className="w-full max-w-[280px] flex flex-col gap-3">
+      <div className="w-full max-w-[320px] flex flex-col gap-3">
         <Link href="/create" className="w-full">
           <Button variant="primary" size="lg" fullWidth>
             방 만들기

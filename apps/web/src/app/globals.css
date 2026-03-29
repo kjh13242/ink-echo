@@ -19,6 +19,9 @@
   --border-focus: rgba(127, 119, 221, 0.6);
   --color-error: #E24B4A;
   --color-success: #1D9E75;
+  --text-error: #E24B4A;
+  --text-success: #1D9E75;
+  --bg-error-subtle: #FFF5F5;
 }
 
 @media (prefers-color-scheme: dark) {
@@ -39,6 +42,9 @@
     --border-focus: rgba(168, 158, 245, 0.5);
     --color-error: #E24B4A;
     --color-success: #1D9E75;
+    --text-error: #FF6B6A;
+    --text-success: #2DCF98;
+    --bg-error-subtle: #2A1010;
   }
 }
 

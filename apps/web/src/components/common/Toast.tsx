@@ -11,7 +11,7 @@ export function ToastContainer() {
   const styles = {
     success: 'bg-success text-white',
     error:   'bg-error text-white',
-    info:    'bg-[#2A2660] text-white',
+    info:    'bg-purple-900 text-white',
   }
 
   return (

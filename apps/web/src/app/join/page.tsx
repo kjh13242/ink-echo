@@ -6,7 +6,7 @@ import { Button } from '@/components/common/Button'
 import { Avatar } from '@/components/common/Avatar'
 import { api, setToken } from '@/lib/api'
 import { useRoomStore } from '@/store/roomStore'
-import { generateNickname } from '@/lib/utils'
+import { generateNickname, cn } from '@/lib/utils'
 import { useToastStore } from '@/store/toastStore'
 import { ApiError } from '@/lib/api'
 import type { Avatar as AvatarType, Room, Participant, Session } from '@/types'
@@ -96,10 +96,10 @@ export default function JoinPage() {
   }
 
   return (
-    <main className="dot-grid min-h-screen flex flex-col px-5 pt-12 pb-8">
+    <main className="dot-grid bg-[var(--bg-base)] min-h-screen flex flex-col px-5 pt-12 pb-8">
       <div className="mb-8">
-        <h1 className="text-display text-purple-900 mb-1">코드로 입장</h1>
-        <p className="text-caption text-purple-400">
+        <h1 className="text-display text-[var(--text-primary)] mb-1">코드로 입장</h1>
+        <p className="text-caption text-[var(--text-secondary)]">
           친구에게 받은 코드를 입력해주세요
         </p>
       </div>
@@ -107,30 +107,31 @@ export default function JoinPage() {
       <div className="flex flex-col gap-6 flex-1">
         {/* 코드 입력 */}
         <div>
-          <label className="text-caption text-purple-500 block mb-2">방 코드</label>
+          <label className="text-caption text-[var(--text-secondary)] block mb-2">방 코드</label>
           <input
             type="text"
             value={code}
             onChange={handleCodeChange}
             placeholder="WHALE42"
             autoCapitalize="characters"
-            className="w-full h-11 px-3 rounded-btn bg-[var(--bg-input)] border
-                       text-[18px] font-[Arial] font-medium tracking-[0.08em]
-                       text-[var(--text-primary)] placeholder:text-[var(--text-placeholder)]
-                       focus:outline-none transition-colors
-                       ${codeError
-                         ? 'border-error bg-[#FFF5F5]'
-                         : 'border-[var(--border-default)] focus:border-[var(--border-focus)] focus:bg-[var(--bg-input-focus)]'
-                       }"
+            className={cn(
+              'w-full h-11 px-3 rounded-btn bg-[var(--bg-input)] border',
+              'text-[18px] font-[Arial] font-medium tracking-[0.08em]',
+              'text-[var(--text-primary)] placeholder:text-[var(--text-placeholder)]',
+              'focus:outline-none transition-colors',
+              codeError
+                ? 'border-error bg-[var(--bg-error-subtle)]'
+                : 'border-[var(--border-default)] focus:border-[var(--border-focus)] focus:bg-[var(--bg-input-focus)]'
+            )}
           />
           {codeError && (
-            <p className="text-caption text-error mt-1">{codeError}</p>
+            <p className="text-caption text-[var(--text-error)] mt-1">{codeError}</p>
           )}
         </div>
 
         {/* 아바타 */}
         <div>
-          <label className="text-caption text-purple-500 block mb-3">내 캐릭터</label>
+          <label className="text-caption text-[var(--text-secondary)] block mb-3">내 캐릭터</label>
           <div className="flex gap-4">
             {AVATARS.map((a) => (
               <button key={a} onClick={() => setAvatar(a)} className="relative">
@@ -145,7 +146,7 @@ export default function JoinPage() {
 
         {/* 닉네임 */}
         <div>
-          <label className="text-caption text-purple-500 block mb-2">
+          <label className="text-caption text-[var(--text-secondary)] block mb-2">
             닉네임 <span className="text-[var(--text-placeholder)]">(선택)</span>
           </label>
           <input

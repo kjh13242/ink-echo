@@ -100,11 +100,11 @@ export default function CreatePage() {
   }
 
   return (
-    <main className="dot-grid min-h-screen flex flex-col px-5 pt-12 pb-8">
+    <main className="dot-grid bg-[var(--bg-base)] min-h-screen flex flex-col px-5 pt-12 pb-8">
       {/* 헤더 */}
       <div className="mb-8">
-        <h1 className="text-display text-purple-900 mb-1">방 만들기</h1>
-        <p className="text-caption text-purple-400">
+        <h1 className="text-display text-[var(--text-primary)] mb-1">방 만들기</h1>
+        <p className="text-caption text-[var(--text-secondary)]">
           10초 안에 방을 만들고 친구를 불러요
         </p>
       </div>
@@ -112,7 +112,7 @@ export default function CreatePage() {
       <div className="flex flex-col gap-6 flex-1">
         {/* 방 이름 */}
         <div>
-          <label className="text-caption text-purple-500 block mb-2">방 이름</label>
+          <label className="text-caption text-[var(--text-secondary)] block mb-2">방 이름</label>
           <div className="flex gap-2">
             <input
               type="text"
@@ -142,7 +142,7 @@ export default function CreatePage() {
 
         {/* 아바타 선택 */}
         <div>
-          <label className="text-caption text-purple-500 block mb-3">내 캐릭터</label>
+          <label className="text-caption text-[var(--text-secondary)] block mb-3">내 캐릭터</label>
           <div className="flex gap-4">
             {AVATARS.map((a) => (
               <button
@@ -166,7 +166,7 @@ export default function CreatePage() {
 
         {/* 닉네임 */}
         <div>
-          <label className="text-caption text-purple-500 block mb-2">
+          <label className="text-caption text-[var(--text-secondary)] block mb-2">
             닉네임 <span className="text-[var(--text-placeholder)]">(선택)</span>
           </label>
           <input

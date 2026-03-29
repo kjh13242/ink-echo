@@ -20,7 +20,7 @@ export default function EchoCardPage() {
 
   if (isLoading) {
     return (
-      <main className="dot-grid min-h-screen flex items-center justify-center">
+      <main className="dot-grid bg-[var(--bg-base)] min-h-screen flex items-center justify-center">
         <div className="w-8 h-8 border-2 border-purple-500 border-t-transparent rounded-full animate-spin" />
       </main>
     )
@@ -28,7 +28,7 @@ export default function EchoCardPage() {
 
   if (!echoCard) {
     return (
-      <main className="dot-grid min-h-screen flex flex-col items-center justify-center gap-4">
+      <main className="dot-grid bg-[var(--bg-base)] min-h-screen flex flex-col items-center justify-center gap-4">
         <p className="text-h2 text-[var(--text-primary)]">에코 카드를 찾을 수 없어요</p>
         <Button variant="secondary" onClick={() => router.push('/')}>
           홈으로
@@ -50,12 +50,12 @@ export default function EchoCardPage() {
   }
 
   return (
-    <main className="dot-grid min-h-screen flex flex-col max-w-[430px] mx-auto px-4 py-8 pb-24">
+    <main className="dot-grid bg-[var(--bg-base)] min-h-screen flex flex-col max-w-[430px] mx-auto px-4 py-8 pb-24">
 
       {/* 헤더 */}
       <div className="mb-6 text-center">
-        <p className="text-caption text-purple-400 mb-1">오늘의 에코</p>
-        <h1 className="text-display text-purple-900 mb-1">{echoCard.roomName}</h1>
+        <p className="text-caption text-[var(--text-secondary)] mb-1">오늘의 에코</p>
+        <h1 className="text-display text-[var(--text-primary)] mb-1">{echoCard.roomName}</h1>
         <p className="text-caption text-[var(--text-tertiary)]">
           {new Date(echoCard.startedAt).toLocaleDateString('ko-KR', {
             month: 'long', day: 'numeric',
@@ -78,7 +78,7 @@ export default function EchoCardPage() {
             className="bg-[var(--bg-surface)] rounded-card p-4 text-center
                        border border-[var(--border-default)]"
           >
-            <p className="text-[22px] font-semibold text-purple-900 mb-0.5">{value}</p>
+            <p className="text-[22px] font-semibold text-[var(--text-primary)] mb-0.5">{value}</p>
             <p className="text-caption text-[var(--text-tertiary)]">{label}</p>
           </div>
         ))}
@@ -87,7 +87,7 @@ export default function EchoCardPage() {
       {/* Top 3 */}
       {echoCard.topTracks?.length > 0 && (
         <div className="mb-6">
-          <p className="text-caption text-purple-500 mb-3">반응 많았던 곡 TOP {echoCard.topTracks.length}</p>
+          <p className="text-caption text-[var(--text-secondary)] mb-3">반응 많았던 곡 TOP {echoCard.topTracks.length}</p>
           <div className="flex flex-col gap-2">
             {echoCard.topTracks.map((track, i) => (
               <div
@@ -117,7 +117,7 @@ export default function EchoCardPage() {
       {/* 참여자 */}
       {echoCard.participants?.length > 0 && (
         <div className="mb-6">
-          <p className="text-caption text-purple-500 mb-3">함께한 사람들</p>
+          <p className="text-caption text-[var(--text-secondary)] mb-3">함께한 사람들</p>
           <div className="flex gap-3 flex-wrap">
             {echoCard.participants.map((p) => (
               <div key={p.participantId} className="flex flex-col items-center gap-1">

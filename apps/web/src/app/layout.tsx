@@ -2,6 +2,7 @@ import type { Metadata } from 'next'
 import './globals.css'
 import { Providers } from './providers'
 import { ToastContainer } from '@/components/common/Toast'
+import { DesktopFrame } from '@/components/layout/DesktopFrame'
 
 export const metadata: Metadata = {
   title: 'Ink & Echo',
@@ -21,20 +22,14 @@ export default function RootLayout({
   return (
     <html lang="ko">
       <head>
-        {/* 카카오 SDK */}
-        <script
-          src="https://t1.kakaocdn.net/kakao_js_sdk/2.7.0/kakao.min.js"
-          crossOrigin="anonymous"
-          async
-        />
       </head>
-      <body className="bg-[#1a1a2e] min-h-screen md:flex md:justify-center">
-        <div className="w-full md:max-w-[768px] md:relative min-h-screen">
+      <body className="bg-[#080808] h-full desktop-bg">
+        <DesktopFrame>
           <Providers>
             {children}
             <ToastContainer />
           </Providers>
-        </div>
+        </DesktopFrame>
         {/* YouTube IFrame placeholder — 화면에 보이지 않음 */}
         <div id="yt-player" style={{ display: 'none' }} />
       </body>

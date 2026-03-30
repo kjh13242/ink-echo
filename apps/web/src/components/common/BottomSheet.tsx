@@ -33,7 +33,7 @@ export function BottomSheet({
   if (!isOpen) return null
 
   return (
-    <div className="fixed inset-0 z-40 flex flex-col justify-end">
+    <div className="absolute inset-0 z-40 flex flex-col justify-end">
       {/* 배경 dim */}
       <div
         className="absolute inset-0 bg-black/40 backdrop-blur-[2px]"

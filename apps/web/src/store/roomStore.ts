@@ -1,4 +1,5 @@
 import { create } from 'zustand'
+import { persist, createJSONStorage } from 'zustand/middleware'
 import type { Room, Participant, Session, RoomSettings } from '@/types'
 
 interface RoomState {
@@ -17,7 +18,9 @@ interface RoomState {
   clearRoom: () => void
 }
 
-export const useRoomStore = create<RoomState>((set) => ({
+export const useRoomStore = create<RoomState>()(
+  persist(
+    (set) => ({
   room: null,
   participants: [],
   session: null,
@@ -57,4 +60,17 @@ export const useRoomStore = create<RoomState>((set) => ({
   setSession: (session) => set({ session }),
 
   clearRoom: () => set({ room: null, participants: [], session: null }),
-}))
+    }),
+    {
+      name: 'room-session',
+      storage: createJSONStorage(() =>
+        typeof window !== 'undefined' ? sessionStorage : localStorage
+      ),
+      partialize: (state) => ({
+        room: state.room,
+        session: state.session,
+        participants: state.participants,
+      }),
+    }
+  )
+)

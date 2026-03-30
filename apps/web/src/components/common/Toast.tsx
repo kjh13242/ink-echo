@@ -15,7 +15,7 @@ export function ToastContainer() {
   }
 
   return (
-    <div className="fixed top-4 left-1/2 -translate-x-1/2 z-50 pointer-events-none">
+    <div className="absolute top-4 left-1/2 -translate-x-1/2 z-50 pointer-events-none">
       <div
         className={cn(
           'px-4 py-2.5 rounded-btn text-[11px] font-medium shadow-lg',

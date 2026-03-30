@@ -77,7 +77,7 @@ export function RoomHeader({
 
       {/* 방 종료 확인 모달 */}
       {endConfirm && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center px-6">
+        <div className="absolute inset-0 z-50 flex items-center justify-center px-6">
           <div
             className="absolute inset-0 bg-black/40 backdrop-blur-[2px]"
             onClick={() => setEndConfirm(false)}

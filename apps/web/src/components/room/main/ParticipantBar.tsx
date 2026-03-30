@@ -32,42 +32,59 @@ export function ParticipantBar({
 
   return (
     <>
-      <div className="fixed bottom-0 left-0 right-0 max-w-[430px] mx-auto
-                      flex items-center gap-3 px-4 py-3
-                      bg-[var(--bg-surface)] border-t border-[var(--border-default)]
-                      backdrop-blur-sm z-20">
+      <div className="sticky bottom-0 left-0 right-0 z-20 flex-shrink-0"
+           style={{
+             borderTop: '0.5px solid rgba(200,196,240,0.5)', background: '#EDEAFF',
+             padding: '8px 14px 14px', display: 'flex', alignItems: 'center', gap: 8
+           }}>
 
-        {/* 다른 참여자들 */}
-        <div className="flex items-center gap-2 flex-1 min-w-0">
+        <div className="flex gap-[4px] items-center flex-1 overflow-x-auto scrollbar-hide">
+          {/* 내 캐릭터 */}
+          <button onClick={() => setShowEmojiPopup(true)} className="flex-shrink-0">
+            <Avatar color={me.avatar} size="sm" isHost={me.isHost} isMe />
+          </button>
+
+          {/* 구분선 */}
+          <div style={{ width: 1, height: 18, background: 'rgba(180,176,220,0.4)', margin: '0 4px' }} className="flex-shrink-0" />
+
+          {/* 다른 참여자들 */}
           {participants.slice(0, 5).map((p) => (
-            <button key={p.participantId} onClick={() => onOtherTap(p.participantId)}>
+            <button key={p.participantId} onClick={() => onOtherTap(p.participantId)} className="flex-shrink-0">
               <Avatar color={p.avatar} size="sm" isHost={p.isHost} />
             </button>
           ))}
           {participants.length > 5 && (
-            <span className="text-caption text-[var(--text-tertiary)]">
+            <span className="text-caption text-[var(--text-tertiary)] flex-shrink-0 ml-1">
               +{participants.length - 5}
             </span>
           )}
+
+          {/* 빈 슬롯 (총원이 5명 이하일 경우 3개 정도 보이게) */}
+          {participants.length < 3 && Array.from({ length: 3 - participants.length }).map((_, i) => (
+            <div key={`empty-${i}`} className="flex-shrink-0" style={{ width: 28, height: 28, borderRadius: '50%', border: '1.5px dashed rgba(180,176,220,0.5)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+              <svg width="8" height="8" viewBox="0 0 12 12" fill="none">
+                <line x1="6" y1="2" x2="6" y2="10" stroke="#C0BCD8" strokeWidth="1.3" strokeLinecap="round"/>
+                <line x1="2" y1="6" x2="10" y2="6" stroke="#C0BCD8" strokeWidth="1.3" strokeLinecap="round"/>
+              </svg>
+            </div>
+          ))}
         </div>
-
-        {/* 구분선 */}
-        <div className="w-px h-6 bg-[var(--border-default)]" />
-
-        {/* 내 캐릭터 */}
-        <button onClick={() => setShowEmojiPopup(true)}>
-          <Avatar color={me.avatar} size="md" isHost={me.isHost} isMe />
-        </button>
 
         {/* 곡 추가 버튼 */}
         <button
           onClick={onAddTrack}
-          className="flex items-center gap-1.5 px-3 h-9 rounded-btn
-                     bg-[var(--color-cta)] text-[var(--color-cta-text)]
-                     text-body1 font-medium active:opacity-80"
+          className="active:opacity-80 transition-opacity flex-shrink-0"
+          style={{
+            height: 32, borderRadius: 10, background: '#7F77DD', color: 'white',
+            fontSize: 10, fontWeight: 500, padding: '0 12px', display: 'flex',
+            alignItems: 'center', justifyContent: 'center', gap: 4, fontFamily: 'inherit'
+          }}
         >
-          <PlusIcon />
-          <span>곡 추가하기</span>
+          <svg width="9" height="9" viewBox="0 0 12 12" fill="none">
+            <line x1="6" y1="1" x2="6" y2="11" stroke="white" strokeWidth="1.4" strokeLinecap="round"/>
+            <line x1="1" y1="6" x2="11" y2="6" stroke="white" strokeWidth="1.4" strokeLinecap="round"/>
+          </svg>
+          곡 추가하기
         </button>
       </div>
 
@@ -97,8 +114,8 @@ function EmojiPopup({ myReactions, onReact, onCancel, onClose }: EmojiPopupProps
 
   return (
     <>
-      <div className="fixed inset-0 z-30" onClick={onClose} />
-      <div className="fixed bottom-20 left-4 right-4 max-w-[430px] mx-auto z-40
+      <div className="absolute inset-0 z-30" onClick={onClose} />
+      <div className="absolute bottom-20 left-4 right-4 z-40
                       bg-[var(--bg-sheet)] rounded-card border border-[var(--border-default)]
                       p-4 shadow-lg
                       animate-in slide-in-from-bottom-2 duration-200">

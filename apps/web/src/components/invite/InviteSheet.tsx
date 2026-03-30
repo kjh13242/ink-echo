@@ -93,31 +93,42 @@ export function InviteSheet({ isOpen, onClose, room, participants }: InviteSheet
             <h2 className="text-h2 text-[var(--text-primary)] mb-4">친구 초대하기</h2>
 
             {/* 방 코드 */}
-            <button
-              onClick={handleCopyCode}
-              className="w-full flex items-center justify-between px-4 py-3 mb-4
-                         bg-[var(--bg-input)] rounded-btn border border-[var(--border-default)]
-                         active:opacity-70"
+            <div
+              className="flex items-center justify-between mb-[16px] w-full"
+              style={{
+                background: '#EEEDFE', borderRadius: 12, padding: '10px 14px',
+                border: '0.5px solid rgba(175,169,236,0.5)'
+              }}
             >
-              <span className="text-caption text-[var(--text-tertiary)]">방 코드</span>
-              <span className="text-[18px] font-[Arial] font-medium tracking-[0.08em] text-purple-900">
+              <span style={{ fontSize: 18, fontWeight: 500, color: '#3C3489', letterSpacing: '0.12em', fontFamily: "'Apple SD Gothic Neo', monospace" }}>
                 {room.code}
               </span>
-              <span className="text-caption text-purple-500">복사</span>
-            </button>
+              <button
+                onClick={handleCopyCode}
+                className="active:opacity-70 transition-opacity"
+                style={{ fontSize: 9, color: '#7F77DD', padding: '4px 8px', border: '0.5px solid rgba(127,119,221,0.4)', borderRadius: 8 }}
+              >
+                복사
+              </button>
+            </div>
 
             {/* 공유 버튼 */}
-            <div className="flex flex-col gap-2 mb-5">
-              <Button
-                variant="kakao"
-                size="lg"
-                fullWidth
+            <div className="flex flex-col mb-[16px]">
+              <button
                 onClick={handleKakao}
+                className="w-full h-[42px] mb-[8px] flex items-center justify-center gap-[8px] active:scale-[0.98] transition-all"
+                style={{ borderRadius: 12, background: '#FEE500', fontFamily: 'inherit' }}
               >
-                카카오톡으로 초대
-              </Button>
+                <div style={{ width: 20, height: 20, borderRadius: '50%', background: '#3A1D1D', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+                  <svg width="12" height="11" viewBox="0 0 12 11" fill="none">
+                    <ellipse cx="6" cy="5" rx="5.5" ry="4.5" fill="#FEE500"/>
+                    <path d="M3 5.5C3 4 4.3 2.8 6 2.8s3 1.2 3 2.7S7.7 8.2 6 8.2c-.3 0-.6 0-.9-.1L3.8 9l.3-1.3C3.3 7.1 3 6.4 3 5.5z" fill="#3A1D1D"/>
+                  </svg>
+                </div>
+                <span style={{ fontSize: 12, fontWeight: 500, color: '#3A1D1D' }}>카카오톡으로 초대하기</span>
+              </button>
 
-              <div className="grid grid-cols-3 gap-2">
+              <div className="flex gap-[8px]">
                 <ShareBtn label="QR 코드" icon={<QRIcon />} onClick={() => setShowQR(true)} />
                 <ShareBtn label="링크 복사" icon={<LinkIcon />} onClick={handleCopyLink} />
                 <ShareBtn label="더보기" icon={<MoreIcon />} onClick={handleMore} />
@@ -125,15 +136,15 @@ export function InviteSheet({ isOpen, onClose, room, participants }: InviteSheet
             </div>
 
             {/* 참여자 현황 */}
-            <div>
-              <p className="text-caption text-[var(--text-tertiary)] mb-2">
-                현재 {participants.length}명 참여 중
+            <div className="mb-[16px]">
+              <p style={{ fontSize: 9, color: '#9490C0', marginBottom: 6, letterSpacing: '0.03em' }}>
+                지금 방에 있는 사람 ({participants.length}명)
               </p>
-              <div className="flex gap-2 flex-wrap">
+              <div className="flex gap-[8px] flex-wrap items-center">
                 {participants.map((p) => (
-                  <div key={p.participantId} className="flex flex-col items-center gap-1">
+                  <div key={p.participantId} className="flex flex-col items-center gap-[2px]">
                     <Avatar color={p.avatar} size="sm" isHost={p.isHost} />
-                    <p className="text-micro text-[var(--text-secondary)] max-w-[40px] truncate text-center">
+                    <p style={{ fontSize: 7, color: '#9490C0' }} className="max-w-[40px] truncate text-center">
                       {p.nickname}
                     </p>
                   </div>
@@ -172,12 +183,16 @@ function ShareBtn({
   return (
     <button
       onClick={onClick}
-      className="flex flex-col items-center gap-1.5 py-3 rounded-btn
-                 bg-[var(--bg-input)] border border-[var(--border-default)]
-                 text-[var(--text-secondary)] active:opacity-70"
+      className="flex-1 flex items-center justify-center gap-[5px] h-[38px] active:scale-[0.98] transition-transform"
+      style={{
+        borderRadius: 10, border: '0.5px solid rgba(180,176,220,0.6)',
+        background: '#F4F2FF', fontFamily: 'inherit'
+      }}
     >
-      {icon}
-      <span className="text-micro">{label}</span>
+      <div style={{ width: 16, height: 16, borderRadius: '50%', background: 'rgba(210,206,248,0.6)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, color: '#7F77DD' }}>
+        {icon}
+      </div>
+      <span style={{ fontSize: 10, color: '#4A4680' }}>{label}</span>
     </button>
   )
 }
@@ -185,42 +200,39 @@ function ShareBtn({
 function BackIcon() {
   return (
     <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
-      <path d="M13 4l-6 6 6 6" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+      <path d="M12 4L6 10L12 16" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
     </svg>
   )
 }
 
 function QRIcon() {
   return (
-    <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
-      <rect x="2" y="2" width="7" height="7" rx="1" stroke="currentColor" strokeWidth="1.5"/>
-      <rect x="4" y="4" width="3" height="3" fill="currentColor"/>
-      <rect x="11" y="2" width="7" height="7" rx="1" stroke="currentColor" strokeWidth="1.5"/>
-      <rect x="13" y="4" width="3" height="3" fill="currentColor"/>
-      <rect x="2" y="11" width="7" height="7" rx="1" stroke="currentColor" strokeWidth="1.5"/>
-      <rect x="4" y="13" width="3" height="3" fill="currentColor"/>
-      <rect x="11" y="11" width="2" height="2" fill="currentColor"/>
-      <rect x="15" y="11" width="2" height="2" fill="currentColor"/>
-      <rect x="11" y="15" width="2" height="2" fill="currentColor"/>
-      <rect x="15" y="15" width="2" height="2" fill="currentColor"/>
+    <svg width="9" height="9" viewBox="0 0 14 14" fill="none">
+      <rect x="1" y="1" width="5" height="5" rx="1" stroke="currentColor" strokeWidth="1.2"/>
+      <rect x="8" y="1" width="5" height="5" rx="1" stroke="currentColor" strokeWidth="1.2"/>
+      <rect x="1" y="8" width="5" height="5" rx="1" stroke="currentColor" strokeWidth="1.2"/>
+      <rect x="8" y="8" width="5" height="5" rx="1" stroke="currentColor" strokeWidth="1.2"/>
     </svg>
   )
 }
 
 function LinkIcon() {
   return (
-    <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
-      <path d="M8 12L12 8M8.5 5.5l1.5-1.5a4 4 0 0 1 5.657 5.657l-1.5 1.5M11.5 14.5l-1.5 1.5a4 4 0 0 1-5.657-5.657l1.5-1.5" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"/>
+    <svg width="9" height="9" viewBox="0 0 14 14" fill="none">
+      <circle cx="11" cy="3" r="2" stroke="currentColor" strokeWidth="1.2"/>
+      <circle cx="11" cy="11" r="2" stroke="currentColor" strokeWidth="1.2"/>
+      <circle cx="3" cy="7" r="2" stroke="currentColor" strokeWidth="1.2"/>
+      <line x1="4.8" y1="6.1" x2="9.2" y2="3.9" stroke="currentColor" strokeWidth="1.2"/>
+      <line x1="4.8" y1="7.9" x2="9.2" y2="10.1" stroke="currentColor" strokeWidth="1.2"/>
     </svg>
   )
 }
 
 function MoreIcon() {
   return (
-    <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
-      <circle cx="5" cy="10" r="1.5" fill="currentColor"/>
-      <circle cx="10" cy="10" r="1.5" fill="currentColor"/>
-      <circle cx="15" cy="10" r="1.5" fill="currentColor"/>
+    <svg width="9" height="9" viewBox="0 0 14 14" fill="none">
+      <rect x="1" y="1" width="12" height="12" rx="3" stroke="currentColor" strokeWidth="1.2"/>
+      <path d="M4 7h6M7 4v6" stroke="currentColor" strokeWidth="1.2" strokeLinecap="round"/>
     </svg>
   )
 }

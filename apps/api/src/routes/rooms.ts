@@ -47,16 +47,6 @@ export async function roomRoutes(app: FastifyInstance) {
         [participantId, roomId, nickname, avatar]
       )
 
-      // 시드 곡 자동 삽입
-      const seedIds = getSeedYoutubeIds()
-      const seedId = seedIds[Math.floor(Math.random() * seedIds.length)]
-      const queueId = generateId('queue')
-      await client.query(
-        `INSERT INTO queue_tracks
-           (id, room_id, added_by, youtube_id, title, artist, position)
-         VALUES ($1, $2, $3, $4, $5, $6, 0)`,
-        [queueId, roomId, participantId, seedId, '시드 곡', '']
-      )
     })
 
     // 세션 토큰 발급

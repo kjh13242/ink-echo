@@ -31,11 +31,26 @@ export function QueueList({
 }: QueueListProps) {
   if (tracks.length === 0) {
     return (
-      <EmptyState
-        message="아직 아무 곡도 없어 — 첫 번째로 넣어볼래?"
-        avatarColor="purple"
-        actionLabel="곡 추가하기"
-      />
+      <div className="flex-1 flex flex-col items-center justify-center py-6 px-6">
+        <svg width="52" height="52" viewBox="0 0 16 16" style={{ imageRendering: 'pixelated', borderRadius: '50%', border: '2px solid #AFA9EC' }}>
+          <rect width="16" height="16" fill="#EEEDFE"/>
+          <rect x="3" y="4" width="10" height="4" fill="#FFD4A8"/>
+          <rect x="4" y="5" width="2" height="2" fill="#2A2660"/>
+          <rect x="10" y="5" width="2" height="2" fill="#2A2660"/>
+          <rect x="6" y="8" width="4" height="1" fill="#E8A090"/>
+          <rect x="2" y="10" width="12" height="3" fill="#7F77DD"/>
+        </svg>
+        <div style={{
+          background: '#FFFFFF', border: '0.5px solid rgba(180,176,220,0.6)', borderRadius: '12px 12px 12px 2px',
+          padding: '8px 12px', fontSize: 11, color: '#3A3670', lineHeight: 1.5, textAlign: 'center',
+          boxShadow: '0 2px 8px rgba(100,96,180,0.08)', margin: '10px 0 14px', position: 'relative'
+        }}>
+          아직 아무 곡도 없어요<br />첫 번째로 넣어볼래요?
+          {/* 하단 꼬리 */}
+          <div style={{ position: 'absolute', bottom: -5, left: 10, width: 0, height: 0, borderLeft: '6px solid rgba(180,176,220,0.6)', borderTop: '5px solid transparent', borderBottom: '0 solid transparent' }} />
+          <div style={{ position: 'absolute', bottom: -4, left: 11, width: 0, height: 0, borderLeft: '5px solid #FFFFFF', borderTop: '4px solid transparent' }} />
+        </div>
+      </div>
     )
   }
 

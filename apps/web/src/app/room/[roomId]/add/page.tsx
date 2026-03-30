@@ -3,7 +3,6 @@
 import { useState, useEffect } from 'react'
 import { useRouter, useParams } from 'next/navigation'
 import { useTrackSearch } from '@/hooks/useTrackSearch'
-import { useRoomStore } from '@/store/roomStore'
 import { useToastStore } from '@/store/toastStore'
 import { api } from '@/lib/api'
 import { getDefaultMoodTag, cn } from '@/lib/utils'
@@ -18,17 +17,18 @@ const MOOD_TAGS = [
   { id: 'emotional',  label: '💔 감성' },
 ]
 
+type Tab = 'search' | 'mood'
+
 export default function AddTrackPage() {
   const router = useRouter()
   const params = useParams()
   const roomId = params.roomId as string
-
-  const room = useRoomStore((s) => s.room)
   const showToast = useToastStore((s) => s.showToast)
 
   const { query, setQuery, clearQuery, results, isLoading, recentQueries, deleteRecent } =
     useTrackSearch()
 
+  const [tab, setTab] = useState<Tab>('search')
   const [isFocused, setIsFocused] = useState(false)
   const [selectedTracks, setSelectedTracks] = useState<SearchTrack[]>([])
   const [messages, setMessages] = useState<Record<string, string>>({})
@@ -37,7 +37,6 @@ export default function AddTrackPage() {
   const [recommendations, setRecommendations] = useState<SearchTrack[]>([])
   const [isSubmitting, setIsSubmitting] = useState(false)
 
-  // 분위기 추천 로드
   useEffect(() => {
     api.get<{ tracks: SearchTrack[] }>('/api/search/recommendations', {
       mood: activeMood,
@@ -47,14 +46,16 @@ export default function AddTrackPage() {
 
   const isSearchMode = query.length > 0
   const showRecentDropdown = isFocused && !isSearchMode && recentQueries.length > 0
+  const trackList = isSearchMode ? results : recommendations
 
   const toggleSelect = (track: SearchTrack) => {
     if (!track.isAvailable) return
     const exists = selectedTracks.find((t) => t.youtubeId === track.youtubeId)
     if (exists) {
-      setSelectedTracks((prev) => prev.filter((t) => t.youtubeId !== track.youtubeId))
+      const next = selectedTracks.filter((t) => t.youtubeId !== track.youtubeId)
+      setSelectedTracks(next)
       setMessages((prev) => { const n = { ...prev }; delete n[track.youtubeId]; return n })
-      if (activeTrackId === track.youtubeId) setActiveTrackId(null)
+      setActiveTrackId(next[next.length - 1]?.youtubeId ?? null)
     } else {
       setSelectedTracks((prev) => [...prev, track])
       setActiveTrackId(track.youtubeId)
@@ -63,7 +64,6 @@ export default function AddTrackPage() {
 
   const handleSubmit = async () => {
     if (!selectedTracks.length) return
-
     setIsSubmitting(true)
     try {
       await api.post(`/api/rooms/${roomId}/queue`, {
@@ -76,12 +76,8 @@ export default function AddTrackPage() {
           message: messages[t.youtubeId] || null,
         })),
       })
-
-      showToast({
-        type: 'success',
-        message: `${selectedTracks.length}곡이 추가됐어요`,
-      })
-      router.back()
+      showToast({ type: 'success', message: `${selectedTracks.length}곡이 추가됐어요` })
+      router.replace(`/room/${roomId}`)
     } catch {
       showToast({ type: 'error', message: '추가에 실패했어요. 다시 시도해주세요' })
     } finally {
@@ -89,61 +85,117 @@ export default function AddTrackPage() {
     }
   }
 
-  const trackList = isSearchMode ? results : recommendations
+  const activeTrack =
+    selectedTracks.find((t) => t.youtubeId === activeTrackId) ?? selectedTracks[0]
 
   return (
-    <main className="bg-[var(--bg-base)] min-h-screen flex flex-col max-w-[430px] mx-auto">
-      {/* 상단 바 */}
-      <div className="flex items-center gap-3 px-4 py-3 bg-[rgba(200,196,244,0.5)] backdrop-blur-sm sticky top-0 z-10">
+    <div className="bg-[var(--bg-surface)] flex flex-col overflow-hidden" style={{ height: 'var(--frame-h, 100svh)' }}>
+
+      {/* ── 상단 바 ── */}
+      <div
+        className="flex items-center gap-2 px-[14px] py-3 flex-shrink-0 sticky top-0 z-10"
+        style={{
+          background: 'color-mix(in srgb, var(--bg-surface) 80%, transparent)',
+          borderBottom: '0.5px solid var(--border-default)',
+          backdropFilter: 'blur(8px)',
+        }}
+      >
         <button
-          onClick={() => router.back()}
-          className="text-[var(--text-secondary)] active:opacity-60"
+          onClick={() => router.replace(`/room/${roomId}`)}
+          className="w-[26px] h-[26px] rounded-full flex items-center justify-center flex-shrink-0 active:opacity-50 transition-opacity"
+          style={{ border: '0.5px solid var(--border-default)', background: 'var(--bg-input)' }}
         >
-          <BackIcon />
+          <svg width="9" height="9" viewBox="0 0 10 10" fill="none">
+            <path d="M7 1L3 5L7 9" stroke="var(--text-secondary)" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+          </svg>
         </button>
+        <span className="text-[11px] font-medium text-[var(--text-primary)] flex-1">곡 추가하기</span>
+        {selectedTracks.length > 0 && (
+          <span className="text-[9px] font-medium" style={{ color: 'var(--color-cta)' }}>
+            {selectedTracks.length}곡 선택
+          </span>
+        )}
+      </div>
 
-        {/* 검색창 */}
-        <div className="relative flex-1">
-          <div className="flex items-center gap-2 h-9 px-3 rounded-btn
-                          bg-[var(--bg-input)] border border-[var(--border-default)]
-                          focus-within:border-[var(--border-focus)] focus-within:bg-[var(--bg-input-focus)]
-                          transition-colors">
-            <SearchIcon />
-            <input
-              type="text"
-              value={query}
-              onChange={(e) => setQuery(e.target.value)}
-              onFocus={() => setIsFocused(true)}
-              onBlur={() => setTimeout(() => setIsFocused(false), 150)}
-              placeholder="곡, 아티스트 검색"
-              className="flex-1 bg-transparent text-body1 text-[var(--text-primary)]
-                         placeholder:text-[var(--text-placeholder)]
-                         outline-none"
-            />
-            {query && (
-              <button onClick={clearQuery} className="text-[var(--text-tertiary)]">
-                <XIcon />
-              </button>
-            )}
-          </div>
+      {/* ── 검색 바 ── */}
+      <div className="px-3 py-2 flex-shrink-0 relative z-10">
+        <div className="relative">
+          <svg
+            className="absolute left-[9px] top-1/2 -translate-y-1/2 pointer-events-none"
+            style={{ opacity: 0.5 }}
+            width="13" height="13" viewBox="0 0 16 16" fill="none"
+          >
+            <circle cx="7" cy="7" r="4.5" stroke="#7F77DD" strokeWidth="1.5" />
+            <line x1="10.5" y1="10.5" x2="13" y2="13" stroke="#7F77DD" strokeWidth="1.5" strokeLinecap="round" />
+          </svg>
+          <input
+            type="text"
+            value={query}
+            onChange={(e) => setQuery(e.target.value)}
+            onFocus={() => setIsFocused(true)}
+            onBlur={() => setTimeout(() => setIsFocused(false), 150)}
+            placeholder="곡, 아티스트 검색"
+            className="w-full h-[34px] text-[11px] outline-none transition-colors pl-[28px] pr-[10px]"
+            style={{
+              borderRadius: 10,
+              border: `0.5px solid ${isFocused || query ? 'rgba(127,119,221,0.5)' : 'var(--border-default)'}`,
+              background: isFocused || query ? 'var(--bg-input-focus)' : 'var(--bg-input)',
+              color: 'var(--text-primary)',
+              fontFamily: 'inherit',
+              colorScheme: 'light',
+              WebkitAppearance: 'none',
+              appearance: 'none',
+            }}
+          />
+          {query && (
+            <button
+              onClick={clearQuery}
+              className="absolute right-[9px] top-1/2 -translate-y-1/2 w-[14px] h-[14px] rounded-full flex items-center justify-center text-[7px]"
+              style={{ background: 'rgba(180,176,220,0.3)', color: 'var(--text-secondary)' }}
+            >
+              ✕
+            </button>
+          )}
 
-          {/* 최근 검색어 드롭다운 */}
+          {/* 최근 검색어 드롭다운 — 콘텐츠 위에 오버레이 */}
           {showRecentDropdown && (
-            <div className="absolute top-full left-0 right-0 mt-1 bg-[var(--bg-sheet)]
-                            border border-[var(--border-default)] rounded-drop shadow-lg z-20">
-              {recentQueries.map((q) => (
-                <div key={q} className="flex items-center gap-2 px-3 py-2.5">
+            <div
+              className="absolute top-full left-0 right-0 mt-1 overflow-hidden"
+              style={{
+                borderRadius: 10,
+                border: '0.5px solid rgba(180,176,220,0.7)',
+                background: 'var(--bg-sheet)',
+                boxShadow: '0 4px 16px rgba(100,96,180,0.12)',
+                zIndex: 30,
+              }}
+            >
+              {recentQueries.map((q, i) => (
+                <div
+                  key={q}
+                  className="flex items-center gap-2 px-3"
+                  style={{
+                    paddingTop: 8, paddingBottom: 8,
+                    borderBottom: i < recentQueries.length - 1 ? '0.5px solid rgba(200,196,240,0.4)' : 'none',
+                  }}
+                >
+                  {/* 시계 아이콘 */}
+                  <svg width="11" height="11" viewBox="0 0 16 16" fill="none" style={{ opacity: 0.4, flexShrink: 0 }}>
+                    <circle cx="8" cy="8" r="5.5" stroke="var(--text-secondary)" strokeWidth="1.2" />
+                    <path d="M8 5v3.5l2 1.5" stroke="var(--text-secondary)" strokeWidth="1.2" strokeLinecap="round" />
+                  </svg>
                   <button
-                    className="flex-1 text-left text-body2 text-[var(--text-primary)]"
+                    className="flex-1 text-left text-[11px]"
+                    style={{ color: 'var(--text-primary)', fontFamily: 'inherit' }}
                     onClick={() => setQuery(q)}
                   >
                     {q}
                   </button>
                   <button
                     onClick={() => deleteRecent(q)}
-                    className="text-[var(--text-tertiary)]"
+                    className="text-[9px] px-1"
+                    style={{ color: 'var(--text-placeholder)' }}
                   >
-                    <XIcon />
+                    ✕
                   </button>
                 </div>
               ))}
@@ -152,296 +204,335 @@ export default function AddTrackPage() {
         </div>
       </div>
 
-      {/* 분위기 태그 (검색 전) */}
+      {/* ── 탭 ── */}
+      <div
+        className="flex flex-shrink-0"
+        style={{ borderBottom: '0.5px solid var(--border-default)' }}
+      >
+        {(['search', 'mood'] as Tab[]).map((t) => (
+          <button
+            key={t}
+            onClick={() => setTab(t)}
+            className="flex-1 py-[6px] text-[10px] text-center transition-colors"
+            style={{
+              fontFamily: 'inherit',
+              fontWeight: tab === t ? 500 : 400,
+              color: tab === t ? 'var(--text-primary)' : 'var(--text-tertiary)',
+              borderBottom: `2px solid ${tab === t ? 'var(--color-cta)' : 'transparent'}`,
+            }}
+          >
+            {t === 'search' ? '검색' : '분위기 추천'}
+          </button>
+        ))}
+      </div>
+
+      {/* ── 분위기 태그 (검색어 없을 때 항상 표시) ── */}
       {!isSearchMode && (
-        <div className="px-4 pt-3 pb-2">
-          <div className="flex gap-2 overflow-x-auto scrollbar-hide pb-1">
-            {MOOD_TAGS.map((tag) => (
-              <button
-                key={tag.id}
-                onClick={() => setActiveMood(tag.id)}
-                className={cn(
-                  'flex-shrink-0 px-3 py-1.5 rounded-full text-caption border',
-                  'transition-all active:scale-95',
-                  activeMood === tag.id
-                    ? 'border-purple-400 bg-purple-100 text-purple-800'
-                    : 'border-[var(--border-default)] bg-[var(--bg-surface)] text-[var(--text-secondary)]'
-                )}
-              >
-                {tag.label}
-              </button>
-            ))}
-          </div>
-        </div>
-      )}
-
-      {/* 탭 (검색 시) */}
-      {isSearchMode && (
-        <div className="px-4 pt-2 flex gap-4 border-b border-[var(--border-default)]">
-          <span className="text-body1 font-medium text-purple-600 pb-2 border-b-2 border-purple-500">
-            검색 결과
-          </span>
-        </div>
-      )}
-
-      {/* 트랙 목록 */}
-      <div className="flex-1 overflow-y-auto scrollbar-hide px-4 pb-32">
-        {isLoading ? (
-          <TrackSkeleton />
-        ) : trackList.length === 0 && isSearchMode ? (
-          <p className="text-body2 text-[var(--text-tertiary)] text-center py-12">
-            '{query}'에 대한 결과가 없어요
-          </p>
-        ) : (
-          <div className="flex flex-col gap-1 pt-2">
-            {trackList.map((track) => {
-              const isSelected = !!selectedTracks.find((t) => t.youtubeId === track.youtubeId)
+        <div
+          className="px-3 py-[7px] flex-shrink-0"
+          style={{ borderBottom: '0.5px solid var(--border-default)' }}
+        >
+          <div className="flex flex-wrap gap-1">
+            {MOOD_TAGS.map((tag) => {
+              const isActive = tab === 'mood' && activeMood === tag.id
               return (
                 <button
-                  key={track.youtubeId}
-                  onClick={() => toggleSelect(track)}
-                  disabled={!track.isAvailable}
-                  className={cn(
-                    'flex items-center gap-3 px-3 py-2.5 rounded-btn text-left w-full',
-                    'transition-all active:scale-[0.99]',
-                    isSelected
-                      ? 'bg-purple-50 border border-purple-300'
-                      : 'bg-[var(--bg-surface)] border border-transparent',
-                    !track.isAvailable && 'opacity-45'
-                  )}
+                  key={tag.id}
+                  onClick={() => {
+                    if (tab === 'search') {
+                      setTab('mood')
+                    }
+                    setActiveMood(tag.id)
+                  }}
+                  className="text-[9px] transition-colors"
+                  style={{
+                    fontFamily: 'inherit',
+                    padding: '3px 9px',
+                    borderRadius: 10,
+                    border: `0.5px solid ${isActive ? 'rgba(168,158,245,0.5)' : 'var(--border-default)'}`,
+                    background: isActive ? 'rgba(168,158,245,0.12)' : 'var(--bg-input)',
+                    color: isActive ? 'var(--color-cta)' : 'var(--text-secondary)',
+                  }}
                 >
-                  {/* 썸네일 */}
-                  <div className="relative flex-shrink-0">
-                    {track.thumbnailUrl ? (
-                      <img
-                        src={track.thumbnailUrl}
-                        alt={track.title}
-                        className="w-11 h-11 rounded-thumb object-cover"
-                      />
-                    ) : (
-                      <div className="w-11 h-11 rounded-thumb bg-[var(--bg-input)]" />
-                    )}
-                    {isSelected && (
-                      <div className="absolute inset-0 rounded-thumb bg-purple-500/20
-                                      flex items-center justify-center">
-                        <CheckIcon />
-                      </div>
-                    )}
-                  </div>
-
-                  {/* 정보 */}
-                  <div className="flex-1 min-w-0">
-                    <p className="text-body1 text-[var(--text-primary)] truncate">
-                      {track.title}
-                    </p>
-                    <p className="text-caption text-[var(--text-secondary)] truncate">
-                      {track.artist}
-                    </p>
-                    {!track.isAvailable && (
-                      <span className="text-micro text-error">재생 불가</span>
-                    )}
-                  </div>
+                  {tag.label}
                 </button>
               )
             })}
           </div>
+        </div>
+      )}
+
+      {/* ── 트랙 목록 ── */}
+      <div className="flex-1 overflow-y-auto scrollbar-hide">
+        {/* 섹션 레이블 */}
+        <div
+          className="px-3 pt-[6px] pb-[3px] text-[8px] tracking-[0.05em] font-medium"
+          style={{ color: 'var(--text-tertiary)' }}
+        >
+          {isSearchMode
+            ? `'${query}' 검색 결과`
+            : tab === 'mood'
+            ? `${MOOD_TAGS.find((t) => t.id === activeMood)?.label} — 방 히스토리 기반`
+            : '지금 방 분위기에 어울리는 곡'}
+        </div>
+
+        {isLoading ? (
+          <TrackSkeleton />
+        ) : trackList.length === 0 && isSearchMode ? (
+          <p className="text-[11px] text-center py-12 px-4" style={{ color: 'var(--text-tertiary)' }}>
+            &lsquo;{query}&rsquo;에 대한 결과가 없어요
+          </p>
+        ) : (
+          trackList.map((track) => {
+            const isSelected = !!selectedTracks.find((t) => t.youtubeId === track.youtubeId)
+            return (
+              <div
+                key={track.youtubeId}
+                onClick={() => toggleSelect(track)}
+                className={cn('flex items-center gap-[7px] px-3 py-[6px] cursor-pointer transition-colors', !track.isAvailable && 'opacity-40')}
+                style={{ background: isSelected ? 'rgba(127,119,221,0.06)' : undefined }}
+              >
+                {/* 썸네일 */}
+                <div
+                  className="w-[34px] h-[34px] flex-shrink-0 flex items-center justify-center overflow-hidden"
+                  style={{
+                    borderRadius: 6,
+                    border: '0.5px solid var(--border-default)',
+                    background: 'var(--bg-input)',
+                  }}
+                >
+                  {track.thumbnailUrl ? (
+                    <img src={track.thumbnailUrl} alt={track.title} className="w-full h-full object-cover" />
+                  ) : (
+                    <div
+                      className="w-0 h-0 ml-[2px]"
+                      style={{
+                        borderTop: '4px solid transparent',
+                        borderBottom: '4px solid transparent',
+                        borderLeft: '7px solid rgba(120,116,180,0.4)',
+                      }}
+                    />
+                  )}
+                </div>
+
+                {/* 정보 */}
+                <div className="flex-1 min-w-0">
+                  <div className="text-[11px] font-medium truncate" style={{ color: 'var(--text-primary)' }}>
+                    {track.title}
+                  </div>
+                  <div className="text-[9px] mt-[1px] truncate" style={{ color: 'var(--text-secondary)' }}>
+                    {track.artist}
+                  </div>
+                </div>
+
+                {/* 추가/체크 버튼 */}
+                <div
+                  className="w-[22px] h-[22px] rounded-full flex items-center justify-center flex-shrink-0 transition-colors"
+                  style={{
+                    border: `0.5px solid ${isSelected ? 'rgba(168,158,245,0.5)' : 'var(--border-default)'}`,
+                    background: isSelected ? 'rgba(168,158,245,0.15)' : 'var(--bg-surface)',
+                  }}
+                >
+                  {isSelected ? (
+                    <span className="text-[10px]" style={{ color: 'var(--color-cta)' }}>✓</span>
+                  ) : (
+                    <svg width="9" height="9" viewBox="0 0 9 9" fill="none">
+                      <rect x="3.75" y="0" width="1.5" height="9" rx="0.75" fill="var(--text-tertiary)" />
+                      <rect x="0" y="3.75" width="9" height="1.5" rx="0.75" fill="var(--text-tertiary)" />
+                    </svg>
+                  )}
+                </div>
+              </div>
+            )
+          })
         )}
       </div>
 
-      {/* 하단 선택 패널 */}
-      {selectedTracks.length > 0 && (
-        <SelectionPanel
-          selectedTracks={selectedTracks}
-          messages={messages}
-          activeTrackId={activeTrackId}
-          isSubmitting={isSubmitting}
-          onRemove={(youtubeId) => {
-            setSelectedTracks((prev) => prev.filter((t) => t.youtubeId !== youtubeId))
-            setMessages((prev) => { const n = { ...prev }; delete n[youtubeId]; return n })
-            if (activeTrackId === youtubeId) setActiveTrackId(null)
-          }}
-          onMessageChange={(youtubeId, msg) =>
-            setMessages((prev) => ({ ...prev, [youtubeId]: msg }))
-          }
-          onActiveChange={setActiveTrackId}
-          onSubmit={handleSubmit}
-        />
-      )}
-    </main>
-  )
-}
-
-// ─── 하단 선택 패널 ────────────────────────────────────
-interface SelectionPanelProps {
-  selectedTracks: SearchTrack[]
-  messages: Record<string, string>
-  activeTrackId: string | null
-  isSubmitting: boolean
-  onRemove: (id: string) => void
-  onMessageChange: (id: string, msg: string) => void
-  onActiveChange: (id: string) => void
-  onSubmit: () => void
-}
-
-function SelectionPanel({
-  selectedTracks,
-  messages,
-  activeTrackId,
-  isSubmitting,
-  onRemove,
-  onMessageChange,
-  onActiveChange,
-  onSubmit,
-}: SelectionPanelProps) {
-  const activeTrack =
-    selectedTracks.find((t) => t.youtubeId === activeTrackId) ?? selectedTracks[0]
-  const isMultiple = selectedTracks.length > 1
-
-  return (
-    <div className="fixed bottom-0 left-0 right-0 max-w-[430px] mx-auto z-20
-                    bg-[var(--bg-sheet)] border-t border-[var(--border-default)]
-                    px-4 pt-3 pb-5 shadow-xl">
-
-      {/* 복수 선택: 칩 스크롤 */}
-      {isMultiple && (
-        <div className="flex gap-2 overflow-x-auto scrollbar-hide mb-3 pb-1">
-          {selectedTracks.map((track) => (
-            <button
-              key={track.youtubeId}
-              onClick={() => onActiveChange(track.youtubeId)}
-              className={cn(
-                'flex items-center gap-1.5 flex-shrink-0 px-2.5 py-1.5 rounded-full',
-                'text-caption border transition-all',
-                track.youtubeId === (activeTrackId ?? selectedTracks[0].youtubeId)
-                  ? 'border-purple-400 bg-purple-100 text-purple-800'
-                  : 'border-[var(--border-default)] bg-[var(--bg-input)] text-[var(--text-secondary)]'
-              )}
-            >
-              <span className="max-w-[80px] truncate">{track.title}</span>
-              <button
-                onClick={(e) => { e.stopPropagation(); onRemove(track.youtubeId) }}
-                className="text-[var(--text-tertiary)] hover:text-error"
+      {/* ── 하단 영역 (sticky) ── */}
+      <div
+        className="sticky bottom-0 z-20 px-3 pb-4 flex-shrink-0"
+        style={{
+          borderTop: '0.5px solid var(--border-default)',
+          background: 'color-mix(in srgb, var(--bg-sheet) 97%, transparent)',
+          backdropFilter: 'blur(8px)',
+        }}
+      >
+        {selectedTracks.length > 0 && (
+          <div className="pt-2">
+            {selectedTracks.length === 1 ? (
+              /* 단건 선택 카드 */
+              <div
+                className="flex items-center gap-[7px] px-2 py-[5px] mb-[7px]"
+                style={{
+                  borderRadius: 10,
+                  border: '0.5px solid var(--border-default)',
+                  background: 'var(--bg-input)',
+                }}
               >
-                <XSmallIcon />
-              </button>
-            </button>
-          ))}
-        </div>
-      )}
+                <div
+                  className="w-[28px] h-[28px] flex-shrink-0 overflow-hidden"
+                  style={{ borderRadius: 5, border: '0.5px solid var(--border-default)', background: 'var(--bg-surface)' }}
+                >
+                  {selectedTracks[0].thumbnailUrl && (
+                    <img src={selectedTracks[0].thumbnailUrl} alt="" className="w-full h-full object-cover" />
+                  )}
+                </div>
+                <div className="flex-1 min-w-0">
+                  <div className="text-[10px] font-medium truncate" style={{ color: 'var(--text-primary)' }}>
+                    {selectedTracks[0].title}
+                  </div>
+                  <div className="text-[8px] mt-[1px] truncate" style={{ color: 'var(--text-secondary)' }}>
+                    {selectedTracks[0].artist}
+                  </div>
+                </div>
+                <button
+                  onClick={() => { setSelectedTracks([]); setMessages({}) }}
+                  className="text-[11px] px-[3px] py-[2px]"
+                  style={{ color: 'var(--text-placeholder)' }}
+                >
+                  ✕
+                </button>
+              </div>
+            ) : (
+              /* 복수 칩 */
+              <div className="flex gap-1 overflow-x-auto pb-1 mb-[6px]" style={{ scrollbarWidth: 'none' }}>
+                {selectedTracks.map((track) => {
+                  const isActive = (activeTrackId ?? selectedTracks[0].youtubeId) === track.youtubeId
+                  return (
+                    <div
+                      key={track.youtubeId}
+                      onClick={() => setActiveTrackId(track.youtubeId)}
+                      className="flex items-center gap-1 flex-shrink-0 cursor-pointer transition-colors"
+                      style={{
+                        padding: '3px 7px 3px 5px',
+                        borderRadius: 9,
+                        border: `0.5px solid ${isActive ? 'rgba(168,158,245,0.5)' : 'var(--border-default)'}`,
+                        background: isActive ? 'rgba(168,158,245,0.12)' : 'var(--bg-input)',
+                      }}
+                    >
+                      <div
+                        className="w-[16px] h-[16px] flex-shrink-0 overflow-hidden"
+                        style={{ borderRadius: 3, background: 'var(--bg-surface)' }}
+                      >
+                        {track.thumbnailUrl && <img src={track.thumbnailUrl} alt="" className="w-full h-full object-cover" />}
+                      </div>
+                      <span
+                        className="text-[9px] font-medium max-w-[55px] truncate"
+                        style={{ color: isActive ? 'var(--color-cta)' : 'var(--text-secondary)' }}
+                      >
+                        {track.title}
+                      </span>
+                      <button
+                        onClick={(e) => {
+                          e.stopPropagation()
+                          const next = selectedTracks.filter((t) => t.youtubeId !== track.youtubeId)
+                          setSelectedTracks(next)
+                          setMessages((prev) => { const n = { ...prev }; delete n[track.youtubeId]; return n })
+                          if (activeTrackId === track.youtubeId) setActiveTrackId(next[0]?.youtubeId ?? null)
+                        }}
+                        className="text-[8px]"
+                        style={{ color: 'var(--text-placeholder)' }}
+                      >
+                        ✕
+                      </button>
+                    </div>
+                  )
+                })}
+              </div>
+            )}
 
-      {/* 단건: 선택 카드 */}
-      {!isMultiple && activeTrack && (
-        <div className="flex items-center gap-3 mb-3">
-          {activeTrack.thumbnailUrl && (
-            <img
-              src={activeTrack.thumbnailUrl}
-              alt={activeTrack.title}
-              className="w-10 h-10 rounded-thumb object-cover flex-shrink-0"
-            />
-          )}
-          <div className="flex-1 min-w-0">
-            <p className="text-body1 text-[var(--text-primary)] truncate">{activeTrack.title}</p>
-            <p className="text-caption text-[var(--text-secondary)] truncate">{activeTrack.artist}</p>
+            {/* 메시지 입력 */}
+            {activeTrack && (
+              <>
+                {selectedTracks.length > 1 && (
+                  <div className="text-[8px] mb-1 pl-[2px]" style={{ color: 'var(--text-placeholder)' }}>
+                    {activeTrack.title}에 메시지 남기기 (선택)
+                  </div>
+                )}
+                <div className="relative mb-[7px]">
+                  <input
+                    type="text"
+                    value={messages[activeTrack.youtubeId] ?? ''}
+                    onChange={(e) =>
+                      setMessages((prev) => ({ ...prev, [activeTrack.youtubeId]: e.target.value.slice(0, 30) }))
+                    }
+                    placeholder="한 줄 메시지... (선택)"
+                    className="w-full h-[34px] outline-none transition-colors pl-[10px] pr-[38px]"
+                    style={{
+                      borderRadius: 10,
+                      border: '0.5px solid var(--border-default)',
+                      background: 'var(--bg-input)',
+                      color: 'var(--text-primary)',
+                      fontSize: 11,
+                      fontFamily: 'inherit',
+                      fontStyle: 'italic',
+                      colorScheme: 'light',
+                      WebkitAppearance: 'none',
+                      appearance: 'none',
+                    }}
+                    onFocus={(e) => {
+                      e.target.style.borderColor = 'rgba(127,119,221,0.5)'
+                      e.target.style.background = 'var(--bg-input-focus)'
+                    }}
+                    onBlur={(e) => {
+                      e.target.style.borderColor = 'var(--border-default)'
+                      e.target.style.background = 'var(--bg-input)'
+                    }}
+                  />
+                  <span
+                    className="absolute right-[9px] top-1/2 -translate-y-1/2 text-[8px] pointer-events-none"
+                    style={{ color: 'var(--text-placeholder)' }}
+                  >
+                    {(messages[activeTrack.youtubeId] ?? '').length}/30
+                  </span>
+                </div>
+              </>
+            )}
           </div>
-          <button onClick={() => onRemove(activeTrack.youtubeId)} className="text-[var(--text-tertiary)]">
-            <XIcon />
+        )}
+
+        {/* 제출 버튼 */}
+        <div className="pt-2">
+          <button
+            onClick={handleSubmit}
+            disabled={selectedTracks.length === 0 || isSubmitting}
+            className="w-full h-[36px] text-[11px] font-medium flex items-center justify-center transition-all active:scale-[0.98] disabled:cursor-default"
+            style={{
+              borderRadius: 10,
+              fontFamily: 'inherit',
+              background: selectedTracks.length === 0 ? 'rgba(180,176,220,0.15)' : 'var(--color-cta)',
+              color: selectedTracks.length === 0 ? 'var(--text-placeholder)' : 'var(--color-cta-text)',
+              opacity: isSubmitting ? 0.5 : 1,
+              boxShadow: selectedTracks.length > 0 ? '0 4px 12px rgba(127, 119, 221, 0.3)' : 'none',
+            }}
+          >
+            {isSubmitting
+              ? '추가 중...'
+              : selectedTracks.length === 0
+              ? '곡을 선택해주세요'
+              : selectedTracks.length === 1
+              ? '플레이리스트에 추가'
+              : `${selectedTracks.length}곡 모두 추가하기`}
           </button>
         </div>
-      )}
-
-      {/* 메시지 입력 */}
-      {activeTrack && (
-        <div className="flex items-center gap-2 mb-3">
-          <input
-            type="text"
-            value={messages[activeTrack.youtubeId] ?? ''}
-            onChange={(e) => onMessageChange(activeTrack.youtubeId, e.target.value.slice(0, 30))}
-            placeholder="한 줄 메시지... (선택)"
-            className="flex-1 h-9 px-3 rounded-btn bg-[var(--bg-input)]
-                       border border-[var(--border-default)]
-                       text-body2 text-[var(--text-primary)] placeholder:text-[var(--text-placeholder)]
-                       focus:outline-none focus:border-[var(--border-focus)] focus:bg-[var(--bg-input-focus)]
-                       transition-colors"
-          />
-          <span className="text-micro text-[var(--text-placeholder)] flex-shrink-0">
-            {(messages[activeTrack.youtubeId] ?? '').length}/30
-          </span>
-        </div>
-      )}
-
-      {/* 추가 버튼 */}
-      <button
-        onClick={onSubmit}
-        disabled={isSubmitting}
-        className="w-full h-10 rounded-btn bg-[var(--color-cta)] text-[var(--color-cta-text)]
-                   text-body1 font-medium
-                   disabled:opacity-40 active:opacity-80 transition-opacity"
-      >
-        {isSubmitting
-          ? '추가 중...'
-          : isMultiple
-          ? `${selectedTracks.length}곡 추가`
-          : '추가'
-        }
-      </button>
+      </div>
     </div>
   )
 }
 
-// ─── 스켈레톤 ─────────────────────────────────────────
 function TrackSkeleton() {
   return (
-    <div className="flex flex-col gap-1 pt-2">
+    <>
       {Array.from({ length: 6 }).map((_, i) => (
-        <div key={i} className="flex items-center gap-3 px-3 py-2.5 bg-[var(--bg-surface)] rounded-btn animate-pulse">
-          <div className="w-11 h-11 rounded-thumb bg-[var(--bg-input)] flex-shrink-0" />
+        <div key={i} className="flex items-center gap-[7px] px-3 py-[6px] animate-pulse">
+          <div className="w-[34px] h-[34px] flex-shrink-0" style={{ borderRadius: 6, background: 'var(--bg-input)' }} />
           <div className="flex-1">
-            <div className="h-3 bg-[var(--bg-input)] rounded mb-1.5 w-3/4" />
-            <div className="h-2.5 bg-[var(--bg-input)] rounded w-1/2" />
+            <div className="h-[11px] w-3/4 mb-1" style={{ borderRadius: 4, background: 'var(--bg-input)' }} />
+            <div className="h-[9px] w-1/2" style={{ borderRadius: 4, background: 'var(--bg-input)' }} />
           </div>
+          <div className="w-[22px] h-[22px] rounded-full flex-shrink-0" style={{ background: 'var(--bg-input)' }} />
         </div>
       ))}
-    </div>
-  )
-}
-
-// ─── 아이콘 ───────────────────────────────────────────
-function BackIcon() {
-  return (
-    <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
-      <path d="M13 4l-6 6 6 6" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
-    </svg>
-  )
-}
-
-function SearchIcon() {
-  return (
-    <svg width="14" height="14" viewBox="0 0 14 14" fill="currentColor" className="text-[var(--text-placeholder)]">
-      <path fillRule="evenodd" d="M6 1a5 5 0 1 0 0 10A5 5 0 0 0 6 1ZM0 6a6 6 0 1 1 10.89 3.477l2.816 2.816a.75.75 0 1 1-1.06 1.06L9.83 10.538A6 6 0 0 1 0 6Z" clipRule="evenodd"/>
-    </svg>
-  )
-}
-
-function XIcon() {
-  return (
-    <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
-      <path d="M4 4l8 8M12 4l-8 8" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"/>
-    </svg>
-  )
-}
-
-function XSmallIcon() {
-  return (
-    <svg width="12" height="12" viewBox="0 0 12 12" fill="none">
-      <path d="M3 3l6 6M9 3l-6 6" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"/>
-    </svg>
-  )
-}
-
-function CheckIcon() {
-  return (
-    <svg width="18" height="18" viewBox="0 0 18 18" fill="none">
-      <path d="M4 9l4 4 6-6" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-    </svg>
+    </>
   )
 }

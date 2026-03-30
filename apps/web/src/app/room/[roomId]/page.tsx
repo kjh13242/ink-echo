@@ -41,12 +41,19 @@ export default function RoomPage() {
   const [participantTracksId, setParticipantTracksId] = useState<string | null>(null)
   const [showEmojiPopup, setShowEmojiPopup] = useState(false)
   const [myVotes, setMyVotes] = useState<string[]>([])
+  const [storeHydrated, setStoreHydrated] = useState(false)
 
-  // 세션 없으면 랜딩으로
+  // persist hydration 완료 대기
   useEffect(() => {
+    setStoreHydrated(true)
+  }, [])
+
+  // 세션 없으면 랜딩으로 (hydration 완료 후에만 체크)
+  useEffect(() => {
+    if (!storeHydrated) return
     if (!session) router.replace('/')
     if (session) setMyParticipantId(session.participantId)
-  }, [session, router, setMyParticipantId])
+  }, [session, storeHydrated, router, setMyParticipantId])
 
   // YouTube 플레이어
   const { loadVideo, play, pause } = useYouTubePlayer({
@@ -126,12 +133,15 @@ export default function RoomPage() {
         break
 
       case 'playback:skip': {
-        const { nextTrack } = p as { skippedQueueId: string; nextTrack: QueueTrack | null }
+        const { skippedQueueId, nextTrack } = p as { skippedQueueId: string; nextTrack: QueueTrack | null }
+        if (skippedQueueId) updateTrackStatus(skippedQueueId, 'skipped')
         if (nextTrack) {
           updateTrackStatus(nextTrack.queueId, 'playing')
           setPlaying(true)
           loadVideo(nextTrack.youtubeId, nextTrack.durationSec)
           play()
+        } else {
+          setPlaying(false)
         }
         break
       }
@@ -202,15 +212,16 @@ export default function RoomPage() {
     return () => clearInterval(timer)
   }, [isPlaying, positionSec, setPosition])
 
-  if (!room || !session) return null
+  if (!storeHydrated || !room || !session) return null
 
   const currentTrack = tracks.find((t) => t.status === 'playing') ?? null
   const me = participants.find((p) => p.participantId === session.participantId)
   const others = participants.filter((p) => p.participantId !== session.participantId)
   const pendingTracks = tracks.filter((t) => t.status === 'pending')
+  const isFull = room.plan === 'free' && participants.length >= 10 && session.isHost
 
   return (
-    <main className="bg-[var(--bg-base)] min-h-screen flex flex-col max-w-[430px] mx-auto">
+    <main className="bg-[var(--bg-surface)] flex flex-col max-w-[430px] mx-auto relative overflow-hidden" style={{ height: 'var(--frame-h, 100svh)' }}>
       {/* 상단 바 */}
       <RoomHeader
         roomName={room.name}
@@ -226,64 +237,92 @@ export default function RoomPage() {
         } : undefined}
       />
 
-      {/* 재생 영역 */}
-      {currentTrack ? (
-        <>
-          <NowPlaying
-            track={currentTrack}
-            isPlaying={isPlaying}
-            positionSec={positionSec}
-            canControl={permissions.canPlay}
-            canSkip={permissions.canSkip}
-            onPlay={async () => {
-              if (isPlaying) {
-                await api.post(`/api/rooms/${roomId}/playback/pause`)
-              } else {
-                await api.post(`/api/rooms/${roomId}/playback/play`, {
-                  position_sec: positionSec,
-                })
-              }
-            }}
-            onSkip={async () => {
-              await api.post(`/api/rooms/${roomId}/queue/skip`)
-            }}
-          />
-          <EmojiStack
-            onReact={async (emoji) => {
-              await api.post(`/api/rooms/${roomId}/reactions`, { emoji })
-            }}
-            onCancel={async (emoji) => {
-              await api.delete(`/api/rooms/${roomId}/reactions/${encodeURIComponent(emoji)}`)
-            }}
-          />
-        </>
-      ) : pendingTracks.length > 0 && permissions.canPlay ? (
-        <div className="px-4 py-4 bg-[var(--bg-surface)] border-b border-[var(--border-default)]
-                        flex items-center justify-between">
-          <div className="min-w-0">
-            <p className="text-body1 text-[var(--text-primary)] truncate">
-              {pendingTracks[0].title}
-            </p>
-            <p className="text-caption text-[var(--text-secondary)]">
-              {pendingTracks.length}곡 대기 중
-            </p>
+      {/* 방 풀 배너 (방장 + free + 10명) */}
+      {isFull && (
+        <div
+          className="mx-3 my-2 flex-shrink-0 relative overflow-hidden"
+          style={{ borderRadius: 14, background: 'linear-gradient(135deg, #3C3489 0%, #7F77DD 100%)', padding: 14 }}
+        >
+          {/* 배경 원 */}
+          <div style={{ position: 'absolute', width: 80, height: 80, borderRadius: '50%', background: 'rgba(255,255,255,0.07)', top: -20, right: -20 }} />
+          <div style={{ position: 'absolute', width: 50, height: 50, borderRadius: '50%', background: 'rgba(255,255,255,0.05)', bottom: -10, left: 10 }} />
+          <div style={{ position: 'relative' }}>
+            <div style={{ display: 'inline-flex', alignItems: 'center', gap: 4, background: 'rgba(255,255,255,0.15)', borderRadius: 20, padding: '3px 8px', fontSize: 9, color: 'rgba(255,255,255,0.9)', marginBottom: 8 }}>
+              ✨ Pro로 업그레이드
+            </div>
+            <div style={{ fontSize: 13, fontWeight: 500, color: 'white', marginBottom: 4, lineHeight: 1.4 }}>더 많은 친구와<br />같이 듣고 싶다면?</div>
+            <div style={{ fontSize: 10, color: 'rgba(255,255,255,0.7)', marginBottom: 12, lineHeight: 1.5 }}>Pro는 인원 제한 없이<br />모두를 초대할 수 있어요</div>
+            <button
+              onClick={() => router.push('/plan')}
+              className="w-full flex items-center justify-center active:opacity-80"
+              style={{ height: 34, borderRadius: 10, background: 'white', fontSize: 11, fontWeight: 500, color: '#3C3489', fontFamily: 'inherit' }}
+            >
+              플랜 보기
+            </button>
           </div>
-          <button
-            onClick={async () => {
-              await api.post(`/api/rooms/${roomId}/queue/skip`)
-            }}
-            className="flex-shrink-0 ml-3 w-10 h-10 flex items-center justify-center
-                       rounded-full bg-purple-500 text-white active:opacity-70 transition-opacity"
-          >
-            <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
-              <path d="M3 2l9 5-9 5V2z" fill="currentColor"/>
-            </svg>
-          </button>
         </div>
-      ) : null}
+      )}
 
-      {/* 플레이리스트 */}
-      <div className="flex-1 overflow-y-auto scrollbar-hide px-4 pb-24">
+      {/* 재생 영역 — 스크롤 영향 안받는 고정 영역 */}
+      <div className="flex-shrink-0 z-10">
+        {currentTrack ? (
+          <>
+            <NowPlaying
+              track={currentTrack}
+              isPlaying={isPlaying}
+              positionSec={positionSec}
+              canControl={permissions.canPlay}
+              canSkip={permissions.canSkip}
+              onPlay={async () => {
+                if (isPlaying) {
+                  await api.post(`/api/rooms/${roomId}/playback/pause`)
+                } else {
+                  await api.post(`/api/rooms/${roomId}/playback/play`, {
+                    position_sec: positionSec,
+                  })
+                }
+              }}
+              onSkip={async () => {
+                await api.post(`/api/rooms/${roomId}/queue/skip`)
+              }}
+            />
+            <EmojiStack
+              onReact={async (emoji) => {
+                await api.post(`/api/rooms/${roomId}/reactions`, { emoji })
+              }}
+              onCancel={async (emoji) => {
+                await api.delete(`/api/rooms/${roomId}/reactions/${encodeURIComponent(emoji)}`)
+              }}
+            />
+          </>
+        ) : pendingTracks.length > 0 && permissions.canPlay ? (
+          <div className="px-4 py-4 bg-[var(--bg-surface)] border-b border-[var(--border-default)]
+                          flex items-center justify-between">
+            <div className="min-w-0">
+              <p className="text-body1 text-[var(--text-primary)] truncate">
+                {pendingTracks[0].title}
+              </p>
+              <p className="text-caption text-[var(--text-secondary)]">
+                {pendingTracks.length}곡 대기 중
+              </p>
+            </div>
+            <button
+              onClick={async () => {
+                await api.post(`/api/rooms/${roomId}/queue/skip`)
+              }}
+              className="flex-shrink-0 ml-3 w-10 h-10 flex items-center justify-center
+                         rounded-full bg-purple-500 text-white active:opacity-70 transition-opacity"
+            >
+              <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
+                <path d="M3 2l9 5-9 5V2z" fill="currentColor"/>
+              </svg>
+            </button>
+          </div>
+        ) : null}
+      </div>
+
+      {/* 플레이리스트 — 이 영역만 스크롤 */}
+      <div className="flex-1 overflow-y-auto scrollbar-hide px-4 pb-4">
         <QueueList
           tracks={pendingTracks}
           currentQueueId={currentTrack?.queueId ?? null}

@@ -66,50 +66,73 @@ export default function EchoCardPage() {
       </div>
 
       {/* 통계 4개 */}
-      <div className="grid grid-cols-2 gap-3 mb-6">
+      <div className="grid grid-cols-2 gap-[7px] mb-[12px]">
         {[
-          { label: '재생한 곡', value: `${echoCard.trackCount}곡` },
-          { label: '함께한 인원', value: `${echoCard.participantCount}명` },
-          { label: '이모지 반응', value: `${echoCard.totalReactions}개` },
-          { label: '앙코르', value: `${echoCard.encoreCount}번` },
-        ].map(({ label, value }) => (
+          { label: '재생한 곡', value: `${echoCard.trackCount}곡`, highlight: true },
+          { label: '함께한 인원', value: `${echoCard.participantCount}명`, highlight: false },
+          { label: '이모지 반응', value: `${echoCard.totalReactions}개`, highlight: false },
+          { label: '앙코르', value: `${echoCard.encoreCount}번`, highlight: false },
+        ].map(({ label, value, highlight }) => (
           <div
             key={label}
-            className="bg-[var(--bg-surface)] rounded-card p-4 text-center
-                       border border-[var(--border-default)]"
+            className="rounded-[10px] p-[10px_10px_8px] flex flex-col gap-[3px] border"
+            style={{
+              background: highlight ? '#EEEDFE' : '#FFFFFF',
+              borderColor: highlight ? 'rgba(175, 169, 236, 0.5)' : 'rgba(180, 176, 220, 0.5)',
+            }}
           >
-            <p className="text-[22px] font-semibold text-[var(--text-primary)] mb-0.5">{value}</p>
-            <p className="text-caption text-[var(--text-tertiary)]">{label}</p>
+            <p
+              className="text-[20px] font-medium leading-[1]"
+              style={{ color: highlight ? '#3C3489' : '#2A2660' }}
+            >
+              {value}
+            </p>
+            <p
+              className="text-[9px]"
+              style={{ color: highlight ? '#7F77DD' : '#9490C0' }}
+            >
+              {label}
+            </p>
           </div>
         ))}
       </div>
 
       {/* Top 3 */}
       {echoCard.topTracks?.length > 0 && (
-        <div className="mb-6">
-          <p className="text-caption text-[var(--text-secondary)] mb-3">반응 많았던 곡 TOP {echoCard.topTracks.length}</p>
-          <div className="flex flex-col gap-2">
-            {echoCard.topTracks.map((track, i) => (
-              <div
-                key={track.queueId}
-                className="flex items-center gap-3 bg-[var(--bg-surface)]
-                           rounded-btn px-3 py-2.5 border border-[var(--border-default)]"
-              >
-                <span className="text-h2 font-bold text-purple-400 w-5 text-center flex-shrink-0">
-                  {i + 1}
-                </span>
-                <div className="flex-1 min-w-0">
-                  <p className="text-body1 text-[var(--text-primary)] truncate">{track.title}</p>
-                  <p className="text-caption text-[var(--text-secondary)] truncate">{track.artist}</p>
+        <div className="mb-[12px]">
+          <p className="text-[9px] font-medium tracking-[0.04em] mb-[6px]" style={{ color: '#9490C0' }}>
+            반응 많았던 곡 TOP {echoCard.topTracks.length}
+          </p>
+          <div className="flex flex-col gap-[5px]">
+            {echoCard.topTracks.map((track, i) => {
+              const highlight = i === 0
+              return (
+                <div
+                  key={track.queueId}
+                  className="flex items-center gap-[8px] px-[10px] py-[7px] rounded-[10px] border"
+                  style={{
+                    background: highlight ? '#EEEDFE' : '#FFFFFF',
+                    borderColor: highlight ? 'rgba(175, 169, 236, 0.5)' : 'rgba(180, 176, 220, 0.4)',
+                  }}
+                >
+                  <span className="text-[13px] w-[18px] text-center flex-shrink-0">
+                    {i === 0 ? '🥇' : i === 1 ? '🥈' : '🥉'}
+                  </span>
+                  <div
+                    className="w-[30px] h-[30px] rounded-[5px] flex-shrink-0 border"
+                    style={{ background: 'rgba(210, 206, 248, 0.4)', borderColor: 'rgba(180, 176, 220, 0.3)' }}
+                  ></div>
+                  <div className="flex-1 min-w-0">
+                    <p className="text-[11px] font-medium truncate" style={{ color: '#2A2660' }}>{track.title}</p>
+                    <p className="text-[9px] mt-[1px] truncate" style={{ color: '#6B67A0' }}>{track.artist}</p>
+                  </div>
+                  <div className="text-[10px] flex-shrink-0" style={{ color: '#9490C0' }}>
+                    {track.topEmoji && <span className="mr-1">{track.topEmoji}</span>}
+                    {track.reactionCount}
+                  </div>
                 </div>
-                {track.topEmoji && (
-                  <span className="text-[18px] flex-shrink-0">{track.topEmoji}</span>
-                )}
-                <span className="text-caption text-[var(--text-tertiary)] flex-shrink-0">
-                  {track.reactionCount}
-                </span>
-              </div>
-            ))}
+              )
+            })}
           </div>
         </div>
       )}
@@ -132,32 +155,30 @@ export default function EchoCardPage() {
       {/* 하단 액션 */}
       <div className="fixed bottom-0 left-0 right-0 max-w-[430px] mx-auto
                       px-4 py-4 bg-[var(--bg-sheet)] border-t border-[var(--border-default)]">
-        <div className="flex flex-col gap-2">
-          {/* 카카오 공유 */}
-          <Button
-            variant="kakao"
-            size="lg"
-            fullWidth
+        <div className="flex flex-col gap-[7px]">
+          <div
             onClick={handleKakaoShare}
+            className="w-full h-[40px] rounded-[10px] bg-[var(--color-cta)] text-white text-[11px] font-medium flex items-center justify-center gap-[6px] cursor-pointer active:scale-[0.98] transition-transform"
+            style={{ fontFamily: 'inherit' }}
           >
             카카오톡으로 공유
-          </Button>
+          </div>
 
-          <div className="flex gap-2">
-            <Button
-              variant="secondary"
-              fullWidth
+          <div className="flex gap-[7px]">
+            <div
+              className="flex-1 h-[36px] rounded-[10px] bg-[var(--bg-surface)] text-[10px] flex items-center justify-center cursor-pointer active:scale-[0.98] transition-transform border border-[var(--border-default)]"
+              style={{ color: 'var(--text-primary)', fontFamily: 'inherit' }}
               onClick={() => router.push('/create')}
             >
               새 방 만들기
-            </Button>
-            <Button
-              variant="ghost"
-              fullWidth
+            </div>
+            <div
+              className="flex-1 h-[36px] rounded-[10px] bg-[var(--bg-surface)] text-[10px] border border-[var(--border-default)] flex items-center justify-center cursor-pointer active:scale-[0.98] transition-transform"
+              style={{ color: 'var(--text-primary)', fontFamily: 'inherit' }}
               onClick={() => router.push('/')}
             >
               홈으로
-            </Button>
+            </div>
           </div>
         </div>
       </div>

@@ -3,30 +3,34 @@
 @tailwind utilities;
 
 :root {
-  /* Light Mode CSS Variables */
+  /* Light Mode CSS Variables — Exact from Mockup */
   --bg-base: #D8D4F0;
   --bg-surface: #F4F2FF;
   --bg-sheet: #F8F6FF;
   --bg-input: #F0EEFF;
   --bg-input-focus: #ECEAFF;
+  
   --color-cta: #7F77DD;
   --color-cta-text: #FFFFFF;
+  
   --text-primary: #2A2660;
   --text-secondary: #6B67A0;
   --text-tertiary: #9490C0;
   --text-placeholder: #B8B4D0;
+  
   --border-default: rgba(180, 176, 220, 0.55);
   --border-focus: rgba(127, 119, 221, 0.6);
+  
   --color-error: #E24B4A;
   --color-success: #1D9E75;
-  --text-error: #E24B4A;
-  --text-success: #1D9E75;
-  --bg-error-subtle: #FFF5F5;
+  
+  --bg-pattern: #D8D4F0;
+  --bg-pattern-line: rgba(160, 156, 210, 0.25);
 }
 
 @media (prefers-color-scheme: dark) {
   :root {
-    /* Dark Mode — Black Base */
+    /* Dark Mode — Black Base but keeping vibe */
     --bg-base: #0A0A0A;
     --bg-surface: #111111;
     --bg-sheet: #1A1A1A;
@@ -40,11 +44,9 @@
     --text-placeholder: #404060;
     --border-default: rgba(255, 255, 255, 0.08);
     --border-focus: rgba(168, 158, 245, 0.5);
-    --color-error: #E24B4A;
-    --color-success: #1D9E75;
-    --text-error: #FF6B6A;
-    --text-success: #2DCF98;
-    --bg-error-subtle: #2A1010;
+    
+    --bg-pattern: #0A0A0A;
+    --bg-pattern-line: rgba(255, 255, 255, 0.03);
   }
 }
 
@@ -52,15 +54,27 @@
   box-sizing: border-box;
 }
 
+html, body {
+  overflow: hidden;
+  height: 100%;
+}
+
 body {
   font-family: 'Apple SD Gothic Neo', 'Malgun Gothic', 'Noto Sans KR', sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
-  /* 모바일 탭 하이라이트 제거 */
   -webkit-tap-highlight-color: transparent;
+  background-color: var(--bg-base);
 }
 
-/* 스크롤바 숨김 (큐 리스트, 칩 등) */
+/* 목업의 격자 패턴 배경 */
+.grid-pattern {
+  background-color: var(--bg-pattern);
+  background-image: 
+    repeating-linear-gradient(0deg, transparent, transparent 7px, var(--bg-pattern-line) 7px, var(--bg-pattern-line) 8px),
+    repeating-linear-gradient(90deg, transparent, transparent 7px, var(--bg-pattern-line) 7px, var(--bg-pattern-line) 8px);
+}
+
 .scrollbar-hide {
   -ms-overflow-style: none;
   scrollbar-width: none;
@@ -69,12 +83,15 @@ body {
   display: none;
 }
 
-/* 도트 그리드 배경 패턴 */
-.dot-grid {
-  background-image: radial-gradient(
-    circle,
-    rgba(127, 119, 221, 0.25) 1px,
-    transparent 1px
-  );
-  background-size: 20px 20px;
+/* 폰 프레임을 넘어서는 배경 영역 */
+body::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  background-color: var(--bg-pattern);
+  background-image: 
+    repeating-linear-gradient(0deg, transparent, transparent 7px, var(--bg-pattern-line) 7px, var(--bg-pattern-line) 8px),
+    repeating-linear-gradient(90deg, transparent, transparent 7px, var(--bg-pattern-line) 7px, var(--bg-pattern-line) 8px);
 }
+

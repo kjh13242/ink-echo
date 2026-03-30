@@ -33,7 +33,7 @@ export function useWebSocket({
   const connect = useCallback(() => {
     if (!enabled) return
 
-    const url = `${WS_URL}?room_id=${roomId}&token=${token}`
+    const url = `${WS_URL}/ws?room_id=${roomId}&token=${token}`
     const ws = new WebSocket(url)
     wsRef.current = ws
 

@@ -35,8 +35,9 @@ async function request<T>(
   }
 
   const token = getToken()
+  const hasBody = fetchOptions.body !== undefined
   const headers: Record<string, string> = {
-    'Content-Type': 'application/json',
+    ...(hasBody ? { 'Content-Type': 'application/json' } : {}),
     ...(token ? { Authorization: `Bearer ${token}` } : {}),
     ...(fetchOptions.headers as Record<string, string> ?? {}),
   }
@@ -48,7 +49,7 @@ async function request<T>(
 
   const json: ApiResponse<T> = await res.json()
 
-  if (!json.success || json.data === null) {
+  if (!json.success) {
     throw new ApiError(
       json.error?.code ?? 'UNKNOWN_ERROR',
       json.error?.message ?? '알 수 없는 오류가 발생했어요',
@@ -56,7 +57,7 @@ async function request<T>(
     )
   }
 
-  return json.data
+  return json.data as T
 }
 
 export class ApiError extends Error {

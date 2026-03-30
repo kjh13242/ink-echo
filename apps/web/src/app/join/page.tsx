@@ -1,17 +1,18 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState } from 'react'
 import { useRouter } from 'next/navigation'
-import { Button } from '@/components/common/Button'
-import { Avatar } from '@/components/common/Avatar'
-import { api, setToken } from '@/lib/api'
+import { api, setToken, ApiError } from '@/lib/api'
 import { useRoomStore } from '@/store/roomStore'
-import { generateNickname, cn } from '@/lib/utils'
 import { useToastStore } from '@/store/toastStore'
-import { ApiError } from '@/lib/api'
 import type { Avatar as AvatarType, Room, Participant, Session } from '@/types'
 
-const AVATARS: AvatarType[] = ['purple', 'green', 'yellow', 'pink']
+const AVATARS = [
+  { id: 'purple' as AvatarType, bg: '#EEEDFE', body: '#FFD4A8', shirt: '#7F77DD', label: '보라' },
+  { id: 'green'  as AvatarType, bg: '#E1F5EE', body: '#C8E8D0', shirt: '#1D9E75', label: '초록' },
+  { id: 'yellow' as AvatarType, bg: '#FFF8E8', body: '#FDECC8', shirt: '#F0A030', label: '노랑' },
+  { id: 'pink'   as AvatarType, bg: '#FBF0FB', body: '#F4D8F4', shirt: '#D4537E', label: '분홍' },
+]
 
 export default function JoinPage() {
   const router = useRouter()
@@ -19,11 +20,6 @@ export default function JoinPage() {
   const showToast = useToastStore((s) => s.showToast)
 
   const [code, setCode] = useState('')
-  const [nickname, setNickname] = useState('')
-
-  useEffect(() => {
-    setNickname(generateNickname())
-  }, [])
   const [avatar, setAvatar] = useState<AvatarType>('purple')
   const [isLoading, setIsLoading] = useState(false)
   const [codeError, setCodeError] = useState<string | null>(null)
@@ -35,150 +31,203 @@ export default function JoinPage() {
 
   const handleJoin = async () => {
     if (!code.trim()) return
-
     setIsLoading(true)
     setCodeError(null)
-
     try {
-      // 방 유효성 확인
-      const roomInfo = await api.get<{
-        roomId: string
-        isFull: boolean
-        isActive: boolean
-      }>(`/api/rooms/${code}`)
+      const roomInfo = await api.get<{ roomId: string; isFull: boolean; isActive: boolean }>(
+        `/api/rooms/${code}`
+      )
+      if (!roomInfo.isActive) { setCodeError('이미 종료된 방이에요'); return }
+      if (roomInfo.isFull) { router.push(`/join/${code}?full=1`); return }
 
-      if (!roomInfo.isActive) {
-        setCodeError('이미 종료된 방이에요')
-        return
-      }
-
-      if (roomInfo.isFull) {
-        router.push(`/join/${code}?full=1`)
-        return
-      }
-
-      // 입장
       const data = await api.post<{
         sessionToken: string
         participant: { participantId: string; nickname: string; avatar: string; isHost: boolean }
         room: Room
         participants: Participant[]
-      }>(`/api/rooms/${roomInfo.roomId}/join`, {
-        nickname: nickname || undefined,
-        avatar,
-      })
+      }>(`/api/rooms/${roomInfo.roomId}/join`, { avatar })
 
       setToken(data.sessionToken)
-
-      const session: Session = {
+      setRoom(data.room)
+      setSession({
         sessionToken: data.sessionToken,
         participantId: data.participant.participantId,
         roomId: data.room.roomId,
         isHost: false,
-      }
-
-      setRoom(data.room)
-      setSession(session)
+      } as Session)
       setParticipants(data.participants)
-
       router.push(`/room/${data.room.roomId}`)
     } catch (err) {
       if (err instanceof ApiError) {
-        if (err.code === 'ROOM_NOT_FOUND') {
-          setCodeError('존재하지 않는 코드예요')
-        } else if (err.code === 'ROOM_EXPIRED') {
-          setCodeError('이미 종료된 방이에요')
-        } else if (err.code === 'ROOM_FULL') {
-          showToast({ type: 'info', message: '방이 꽉 찼어요' })
-        } else {
-          showToast({ type: 'error', message: '입장에 실패했어요' })
-        }
+        if (err.code === 'ROOM_NOT_FOUND') setCodeError('존재하지 않는 코드예요')
+        else if (err.code === 'ROOM_EXPIRED') setCodeError('이미 종료된 방이에요')
+        else if (err.code === 'ROOM_FULL') showToast({ type: 'info', message: '방이 꽉 찼어요' })
+        else showToast({ type: 'error', message: '입장에 실패했어요' })
       }
     } finally {
       setIsLoading(false)
     }
   }
 
+  const canJoin = code.trim().length > 0
+
   return (
-    <main className="dot-grid bg-[var(--bg-base)] min-h-screen flex flex-col px-5 pt-12 pb-8">
-      <div className="mb-8">
-        <h1 className="text-display text-[var(--text-primary)] mb-1">코드로 입장</h1>
-        <p className="text-caption text-[var(--text-secondary)]">
-          친구에게 받은 코드를 입력해주세요
-        </p>
+    <div className="bg-[var(--bg-surface)] flex flex-col" style={{ minHeight: 'var(--frame-h, 100svh)' }}>
+      {/* 상단 바 */}
+      <div
+        className="flex items-center gap-2 flex-shrink-0 sticky top-0 z-10"
+        style={{
+          padding: '12px 14px 10px',
+          background: 'color-mix(in srgb, var(--bg-surface) 80%, transparent)',
+          borderBottom: '0.5px solid var(--border-default)',
+          backdropFilter: 'blur(8px)',
+        }}
+      >
+        <button
+          onClick={() => router.replace('/')}
+          className="flex items-center justify-center flex-shrink-0 active:opacity-50 transition-opacity"
+          style={{
+            width: 26, height: 26, borderRadius: '50%',
+            border: '0.5px solid rgba(160,156,200,0.5)',
+            background: 'rgba(255,255,255,0.5)',
+          }}
+        >
+          <svg width="9" height="9" viewBox="0 0 10 10" fill="none">
+            <path d="M7 1L3 5L7 9" stroke="var(--text-secondary)" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+          </svg>
+        </button>
+        <span style={{ fontSize: 11, fontWeight: 500, color: 'var(--text-primary)', flex: 1 }}>코드로 입장</span>
       </div>
 
-      <div className="flex flex-col gap-6 flex-1">
-        {/* 코드 입력 */}
-        <div>
-          <label className="text-caption text-[var(--text-secondary)] block mb-2">방 코드</label>
-          <input
-            type="text"
-            value={code}
-            onChange={handleCodeChange}
-            placeholder="WHALE42"
-            autoCapitalize="characters"
-            className={cn(
-              'w-full h-11 px-3 rounded-btn bg-[var(--bg-input)] border',
-              'text-[18px] font-[Arial] font-medium tracking-[0.08em]',
-              'text-[var(--text-primary)] placeholder:text-[var(--text-placeholder)]',
-              'focus:outline-none transition-colors',
-              codeError
-                ? 'border-error bg-[var(--bg-error-subtle)]'
-                : 'border-[var(--border-default)] focus:border-[var(--border-focus)] focus:bg-[var(--bg-input-focus)]'
-            )}
-          />
-          {codeError && (
-            <p className="text-caption text-[var(--text-error)] mt-1">{codeError}</p>
-          )}
-        </div>
+      {/* 바디 */}
+      <div className="flex-1 flex flex-col justify-center" style={{ padding: '20px 16px 80px' }}>
 
-        {/* 아바타 */}
-        <div>
-          <label className="text-caption text-[var(--text-secondary)] block mb-3">내 캐릭터</label>
-          <div className="flex gap-4">
+          {/* 코드 입력 */}
+          <div style={{ fontSize: 11, color: 'var(--text-secondary)', marginBottom: 8, fontFamily: 'inherit' }}>방 코드 입력</div>
+          <div style={{ marginBottom: 8 }}>
+            <input
+              type="text"
+              value={code}
+              onChange={handleCodeChange}
+              placeholder="WHALE42"
+              autoCapitalize="characters"
+              className="w-full outline-none text-center transition-colors"
+              style={{
+                height: 52, borderRadius: 12,
+                border: `0.5px solid ${codeError ? 'var(--color-error)' : 'var(--border-default)'}`,
+                background: codeError ? 'var(--bg-error-subtle)' : 'var(--bg-input)',
+                fontSize: 22, fontFamily: 'monospace',
+                fontWeight: 500, color: 'var(--text-primary)',
+                letterSpacing: '0.1em',
+                caretColor: 'var(--color-cta)',
+                display: 'block',
+                colorScheme: 'light',
+                WebkitAppearance: 'none',
+                appearance: 'none',
+              }}
+              onFocus={(e) => {
+                if (!codeError) {
+                  e.target.style.borderColor = 'var(--border-focus)'
+                  e.target.style.background = 'var(--bg-input-focus)'
+                }
+              }}
+              onBlur={(e) => {
+                if (!codeError) {
+                  e.target.style.borderColor = 'var(--border-default)'
+                  e.target.style.background = 'var(--bg-input)'
+                }
+              }}
+            />
+          </div>
+          {codeError ? (
+            <div style={{ fontSize: 9, color: 'var(--text-error)', textAlign: 'center', marginBottom: 20 }}>{codeError}</div>
+          ) : (
+            <div style={{ fontSize: 9, color: 'var(--text-placeholder)', textAlign: 'center', marginBottom: 20 }}>친구에게 받은 코드를 입력해주세요</div>
+          )}
+
+          {/* 아바타 */}
+          <div style={{ fontSize: 10, color: 'var(--text-secondary)', marginBottom: 8, fontFamily: 'inherit' }}>내 캐릭터</div>
+          <div className="flex" style={{ gap: 8, marginBottom: 8 }}>
             {AVATARS.map((a) => (
-              <button key={a} onClick={() => setAvatar(a)} className="relative">
-                <Avatar color={a} size="lg" isMe={avatar === a} />
-                {avatar === a && (
-                  <div className="absolute -bottom-1 left-1/2 -translate-x-1/2 w-1.5 h-1.5 bg-purple-500 rounded-full" />
-                )}
-              </button>
+              <div
+                key={a.id}
+                className="flex flex-col items-center cursor-pointer"
+                style={{ gap: 3 }}
+                onClick={() => setAvatar(a.id)}
+              >
+                <div
+                  className="relative"
+                  style={{
+                    width: 36, height: 36, borderRadius: '50%',
+                    border: `2px solid ${avatar === a.id ? 'var(--color-cta)' : 'transparent'}`,
+                  }}
+                >
+                  <svg
+                    width="36" height="36" viewBox="0 0 16 16"
+                    style={{ imageRendering: 'pixelated', borderRadius: '50%', display: 'block' }}
+                  >
+                    <rect width="16" height="16" fill={a.bg} />
+                    <rect x="3" y="4" width="10" height="4" fill={a.body} />
+                    <rect x="4" y="5" width="2" height="2" fill="#2A2660" />
+                    <rect x="10" y="5" width="2" height="2" fill="#2A2660" />
+                    <rect x="2" y="10" width="12" height="3" fill={a.shirt} />
+                  </svg>
+                  {avatar === a.id && (
+                    <div
+                      className="absolute flex items-center justify-center"
+                      style={{
+                        bottom: -2, right: -2,
+                        width: 11, height: 11, borderRadius: '50%',
+                        background: 'var(--color-cta)',
+                        border: '1.5px solid var(--bg-surface)',
+                      }}
+                    >
+                      <svg width="5" height="5" viewBox="0 0 8 8" fill="none">
+                        <path d="M1.5 4L3.5 6L6.5 2" stroke="white" strokeWidth="1.2" strokeLinecap="round" />
+                      </svg>
+                    </div>
+                  )}
+                </div>
+                <span
+                  style={{
+                    fontSize: 7, fontFamily: 'inherit',
+                    color: avatar === a.id ? 'var(--color-cta)' : 'var(--text-tertiary)',
+                    fontWeight: avatar === a.id ? 500 : 400,
+                  }}
+                >
+                  {a.label}
+                </span>
+              </div>
             ))}
           </div>
-        </div>
-
-        {/* 닉네임 */}
-        <div>
-          <label className="text-caption text-[var(--text-secondary)] block mb-2">
-            닉네임 <span className="text-[var(--text-placeholder)]">(선택)</span>
-          </label>
-          <input
-            type="text"
-            value={nickname}
-            onChange={(e) => setNickname(e.target.value)}
-            maxLength={10}
-            placeholder={nickname}
-            className="w-full h-10 px-3 rounded-btn bg-[var(--bg-input)] border border-[var(--border-default)]
-                       text-body1 text-[var(--text-primary)] placeholder:text-[var(--text-placeholder)]
-                       focus:outline-none focus:border-[var(--border-focus)] focus:bg-[var(--bg-input-focus)]
-                       transition-colors"
-          />
-        </div>
       </div>
 
-      <div className="mt-8">
-        <Button
-          variant="primary"
-          size="lg"
-          fullWidth
-          isLoading={isLoading}
-          disabled={!code.trim()}
+      {/* 입장 버튼 — 항상 하단 고정 */}
+      <div
+        className="sticky bottom-0 z-10 flex-shrink-0"
+        style={{
+          padding: '10px 16px 20px',
+          background: 'color-mix(in srgb, var(--bg-surface) 97%, transparent)',
+          backdropFilter: 'blur(8px)',
+          borderTop: '0.5px solid var(--border-default)',
+        }}
+      >
+        <button
           onClick={handleJoin}
+          disabled={!canJoin || isLoading}
+          className="w-full flex items-center justify-center active:scale-[0.98] disabled:scale-100 disabled:opacity-50 transition-all font-medium"
+          style={{
+            height: 44, borderRadius: 14,
+            background: canJoin ? 'var(--color-cta)' : 'rgba(180,176,220,0.3)',
+            color: canJoin ? 'var(--color-cta-text)' : '#A8A4C8',
+            fontSize: 13,
+            fontFamily: 'inherit',
+            boxShadow: canJoin ? '0 4px 12px rgba(127, 119, 221, 0.3)' : 'none',
+          }}
         >
-          입장
-        </Button>
+          {isLoading ? '입장 중...' : '입장하기'}
+        </button>
       </div>
-    </main>
+    </div>
   )
 }

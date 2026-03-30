@@ -91,20 +91,46 @@ export default function JoinByLinkPage() {
     }
   }
 
-  // 에러 화면
-  if (error || isFull) {
+  // 방 꽉 참 화면
+  if (isFull || error === '방이 꽉 찼어요') {
     return (
-      <main className="dot-grid min-h-screen flex flex-col items-center justify-center px-5 gap-6">
-        <p className="text-h1 text-purple-900 text-center">
-          {isFull ? '방이 꽉 찼어요' : error}
-        </p>
-        <p className="text-body2 text-[var(--text-secondary)] text-center">
-          {isFull ? '무료 방은 최대 10명까지 입장할 수 있어요' : '다시 확인해주세요'}
-        </p>
-        <Button variant="secondary" onClick={() => router.push('/')}>
+      <div className="bg-[var(--bg-surface)] flex flex-col items-center justify-center px-5 gap-0" style={{ minHeight: 'var(--frame-h, 100svh)' }}>
+        <div style={{ fontSize: 32, marginBottom: 12 }}>🔒</div>
+        <div style={{ fontSize: 15, fontWeight: 500, color: 'var(--text-primary)', marginBottom: 6, textAlign: 'center' }}>방이 꽉 찼어요</div>
+        <div style={{ fontSize: 11, color: 'var(--text-tertiary)', textAlign: 'center', lineHeight: 1.6, marginBottom: 24 }}>
+          무료 방은 최대 10명까지 입장할 수 있어요<br />방장이 Pro로 업그레이드하면 더 많이 들어올 수 있어요
+        </div>
+        <button
+          onClick={() => router.push('/')}
+          className="w-full flex items-center justify-center active:opacity-75"
+          style={{
+            maxWidth: 280, height: 44, borderRadius: 14,
+            background: 'var(--color-cta)', color: 'var(--color-cta-text)',
+            fontSize: 13, fontWeight: 500, fontFamily: 'inherit',
+          }}
+        >
           돌아가기
-        </Button>
-      </main>
+        </button>
+      </div>
+    )
+  }
+
+  // 에러 화면
+  if (error) {
+    return (
+      <div className="bg-[var(--bg-surface)] flex flex-col items-center justify-center px-5 gap-4" style={{ minHeight: 'var(--frame-h, 100svh)' }}>
+        <div style={{ fontSize: 13, color: 'var(--text-secondary)', textAlign: 'center' }}>{error}</div>
+        <button
+          onClick={() => router.push('/')}
+          style={{
+            height: 40, borderRadius: 12, padding: '0 20px',
+            border: '0.5px solid var(--border-default)',
+            background: 'transparent', fontSize: 12, color: 'var(--text-secondary)', fontFamily: 'inherit',
+          }}
+        >
+          돌아가기
+        </button>
+      </div>
     )
   }
 

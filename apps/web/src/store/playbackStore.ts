@@ -27,7 +27,7 @@ export const usePlaybackStore = create<PlaybackStoreState>((set) => ({
   syncFromServer: (state) => {
     // 서버 타임스탬프 기준으로 현재 위치 보정
     const elapsedSec = state.isPlaying
-      ? Math.floor((Date.now() - state.updatedAt) / 1000)
+      ? Math.max(0, Math.floor((Date.now() - state.updatedAt) / 1000))
       : 0
     set({
       isPlaying: state.isPlaying,

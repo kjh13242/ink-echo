@@ -42,6 +42,7 @@ export default function RoomPage() {
   const [showEmojiPopup, setShowEmojiPopup] = useState(false)
   const [myVotes, setMyVotes] = useState<string[]>([])
   const [storeHydrated, setStoreHydrated] = useState(false)
+  const [isSkipping, setIsSkipping] = useState(false)
 
   // persist hydration 완료 대기
   useEffect(() => {
@@ -228,9 +229,12 @@ export default function RoomPage() {
         onInvite={() => setShowInvite(true)}
         onSettings={permissions.canManageRoom ? () => setShowSettings(true) : undefined}
         onLeave={async () => {
-          await api.delete(`/api/rooms/${roomId}/participants/me`)
-          clearRoom()
-          router.push('/')
+          try {
+            await api.delete(`/api/rooms/${roomId}/participants/me`)
+          } finally {
+            clearRoom()
+            router.push('/')
+          }
         }}
         onEndRoom={permissions.canManageRoom ? async () => {
           await api.delete(`/api/rooms/${roomId}`)
@@ -283,7 +287,13 @@ export default function RoomPage() {
                 }
               }}
               onSkip={async () => {
-                await api.post(`/api/rooms/${roomId}/queue/skip`)
+                if (isSkipping) return
+                setIsSkipping(true)
+                try {
+                  await api.post(`/api/rooms/${roomId}/queue/skip`)
+                } finally {
+                  setIsSkipping(false)
+                }
               }}
             />
             <EmojiStack

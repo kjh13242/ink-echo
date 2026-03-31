@@ -18,8 +18,16 @@ const app = Fastify({
 
 async function bootstrap() {
   // ── 플러그인 ──────────────────────────────────────────
+  const allowedOrigins = (process.env.CORS_ORIGIN ?? 'http://localhost:3000')
+    .split(',').map((o) => o.trim()).filter(Boolean)
   await app.register(cors, {
-    origin: process.env.CORS_ORIGIN ?? 'http://localhost:3000',
+    origin: (origin, cb) => {
+      if (!origin || allowedOrigins.some((o) => origin.startsWith(o))) {
+        cb(null, true)
+      } else {
+        cb(new Error('Not allowed by CORS'), false)
+      }
+    },
     credentials: true,
   })
 

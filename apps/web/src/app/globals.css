@@ -90,8 +90,13 @@ body::before {
   inset: 0;
   z-index: -1;
   background-color: var(--bg-pattern);
-  background-image: 
+  background-image:
     repeating-linear-gradient(0deg, transparent, transparent 7px, var(--bg-pattern-line) 7px, var(--bg-pattern-line) 8px),
     repeating-linear-gradient(90deg, transparent, transparent 7px, var(--bg-pattern-line) 7px, var(--bg-pattern-line) 8px);
+}
+
+@keyframes eq-bar {
+  from { transform: scaleY(0.3); }
+  to   { transform: scaleY(1); }
 }
 

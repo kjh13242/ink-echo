@@ -4,6 +4,8 @@ import { useState, useEffect } from 'react'
 import { useRouter, useParams } from 'next/navigation'
 import { useTrackSearch } from '@/hooks/useTrackSearch'
 import { useToastStore } from '@/store/toastStore'
+import { useQueueStore } from '@/store/queueStore'
+import { usePlaybackStore } from '@/store/playbackStore'
 import { api } from '@/lib/api'
 import { getDefaultMoodTag, cn } from '@/lib/utils'
 import type { SearchTrack } from '@/types'
@@ -27,6 +29,11 @@ export default function AddTrackPage() {
 
   const { query, setQuery, clearQuery, results, isLoading, recentQueries, deleteRecent } =
     useTrackSearch()
+
+  const tracks = useQueueStore((s) => s.tracks)
+  const isPlaying = usePlaybackStore((s) => s.isPlaying)
+  const positionSec = usePlaybackStore((s) => s.positionSec)
+  const currentTrack = tracks.find((t) => t.status === 'playing') ?? null
 
   const [tab, setTab] = useState<Tab>('search')
   const [isFocused, setIsFocused] = useState(false)
@@ -116,6 +123,86 @@ export default function AddTrackPage() {
           </span>
         )}
       </div>
+
+      {/* ── 미니 재생바 ── */}
+      {currentTrack && (
+        <div
+          className="flex items-center gap-[8px] px-3 flex-shrink-0"
+          style={{
+            height: 44,
+            background: 'rgba(127,119,221,0.06)',
+            borderBottom: '0.5px solid rgba(127,119,221,0.15)',
+          }}
+        >
+          {/* 썸네일 */}
+          <div
+            className="w-[28px] h-[28px] flex-shrink-0 overflow-hidden relative"
+            style={{ borderRadius: 5, background: 'var(--bg-input)' }}
+          >
+            {currentTrack.thumbnailUrl && (
+              <img src={currentTrack.thumbnailUrl} alt="" className="w-full h-full object-cover" />
+            )}
+            {isPlaying && (
+              <div className="absolute inset-0 flex items-center justify-center"
+                   style={{ background: 'rgba(0,0,0,0.35)' }}>
+                <div className="flex items-end gap-[2px]" style={{ height: 10 }}>
+                  {[0, 0.2, 0.1].map((delay, i) => (
+                    <div
+                      key={i}
+                      style={{
+                        width: 2, borderRadius: 1, background: 'white',
+                        animation: `eq-bar 0.8s ease-in-out ${delay}s infinite alternate`,
+                        height: i === 1 ? 10 : 6,
+                      }}
+                    />
+                  ))}
+                </div>
+              </div>
+            )}
+          </div>
+
+          {/* 정보 + 프로그레스 */}
+          <div className="flex-1 min-w-0">
+            <div className="text-[10px] font-medium truncate" style={{ color: 'var(--text-primary)', lineHeight: 1.3 }}>
+              {currentTrack.title}
+            </div>
+            <div className="text-[8px] truncate" style={{ color: 'var(--text-tertiary)', lineHeight: 1.3 }}>
+              {currentTrack.artist}
+            </div>
+            {/* 프로그레스 바 */}
+            <div
+              className="mt-[3px]"
+              style={{ height: 2, borderRadius: 1, background: 'rgba(127,119,221,0.2)', overflow: 'hidden' }}
+            >
+              <div
+                style={{
+                  height: '100%',
+                  borderRadius: 1,
+                  background: 'var(--color-cta)',
+                  width: currentTrack.durationSec
+                    ? `${Math.min(100, (positionSec / currentTrack.durationSec) * 100)}%`
+                    : '0%',
+                  transition: 'width 1s linear',
+                }}
+              />
+            </div>
+          </div>
+
+          {/* 재생 상태 아이콘 */}
+          <div className="flex-shrink-0" style={{ color: 'var(--color-cta)', opacity: 0.7 }}>
+            {isPlaying ? (
+              <svg width="12" height="12" viewBox="0 0 12 12" fill="none">
+                <rect x="2" y="2" width="3" height="8" rx="1" fill="currentColor" />
+                <rect x="7" y="2" width="3" height="8" rx="1" fill="currentColor" />
+              </svg>
+            ) : (
+              <svg width="12" height="12" viewBox="0 0 12 12" fill="none">
+                <path d="M3 2l7 4-7 4V2z" fill="currentColor" />
+              </svg>
+            )}
+          </div>
+        </div>
+      )}
 
       {/* ── 검색 바 ── */}
       <div className="px-3 py-2 flex-shrink-0 relative z-10">

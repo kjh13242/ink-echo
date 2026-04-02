@@ -55,8 +55,13 @@ export function DesktopFrame({ children }: { children: React.ReactNode }) {
     else setHInput(String(h))
   }
 
-  // Mobile or pre-mount: render as-is
-  if (!mounted || !isDesktop) {
+  // Pre-mount: hide content to prevent full-viewport flash before frame applies
+  if (!mounted) {
+    return <div className="w-full h-full" style={{ visibility: 'hidden' }}>{children}</div>
+  }
+
+  // Mobile: render as-is
+  if (!isDesktop) {
     return <div className="w-full h-full">{children}</div>
   }
 

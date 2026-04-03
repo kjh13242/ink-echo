@@ -25,9 +25,9 @@ export function RoomHeader({
 
   return (
     <>
-      <header className="flex items-center gap-2 px-4 py-3 bg-[rgba(200,196,244,0.5)] backdrop-blur-sm sticky top-0 z-10">
+      <header className="flex items-center gap-2 px-4 py-3 bg-[rgba(10,10,10,0.9)] backdrop-blur-sm sticky top-0 z-10 border-b border-white/[0.06]">
         {/* 방 이름 */}
-        <h1 className="flex-1 text-body1 font-medium text-[var(--text-primary)] truncate">
+        <h1 className="flex-1 text-body1 font-medium text-[#F0EEFF] truncate">
           {roomName}
         </h1>
 
@@ -35,8 +35,8 @@ export function RoomHeader({
         <button
           onClick={onInvite}
           className="w-8 h-8 flex items-center justify-center rounded-full
-                     bg-[var(--bg-surface)] border border-[var(--border-default)]
-                     text-[var(--text-secondary)] active:opacity-60"
+                     bg-white/[0.08] border border-white/[0.1]
+                     text-[#A0A0C0] active:opacity-60"
         >
           <PersonAddIcon />
         </button>
@@ -45,8 +45,8 @@ export function RoomHeader({
         <button
           onClick={() => setShowMore(true)}
           className="w-8 h-8 flex items-center justify-center rounded-full
-                     bg-[var(--bg-surface)] border border-[var(--border-default)]
-                     text-[var(--text-secondary)] active:opacity-60"
+                     bg-white/[0.08] border border-white/[0.1]
+                     text-[#A0A0C0] active:opacity-60"
         >
           <MoreIcon />
         </button>
@@ -77,7 +77,7 @@ export function RoomHeader({
 
       {/* 방 종료 확인 모달 */}
       {endConfirm && (
-        <div className="absolute inset-0 z-50 flex items-center justify-center px-6">
+        <div className="fixed inset-0 z-50 flex items-center justify-center px-6">
           <div
             className="absolute inset-0 bg-black/40 backdrop-blur-[2px]"
             onClick={() => setEndConfirm(false)}

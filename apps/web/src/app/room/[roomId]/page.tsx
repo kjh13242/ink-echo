@@ -11,15 +11,13 @@ import { useWebSocket } from '@/hooks/useWebSocket'
 import { useYouTubePlayer } from '@/hooks/useYouTubePlayer'
 import { useRoomPermission } from '@/hooks/useRoomPermission'
 import { api } from '@/lib/api'
-import type { WSEvent, QueueTrack, Participant, Emoji } from '@/types'
+import type { WSEvent, QueueTrack, Participant } from '@/types'
 
 import { RoomHeader } from '@/components/room/main/RoomHeader'
 import { NowPlaying } from '@/components/room/main/NowPlaying'
 import { EmojiStack } from '@/components/room/main/EmojiStack'
 import { QueueList } from '@/components/room/main/QueueList'
 import { ParticipantBar } from '@/components/room/main/ParticipantBar'
-import { RoomSettingsSheet } from '@/components/room/main/RoomSettingsSheet'
-import { InviteSheet } from '@/components/invite/InviteSheet'
 
 export default function RoomPage() {
   const params = useParams()
@@ -41,20 +39,12 @@ export default function RoomPage() {
   const [participantTracksId, setParticipantTracksId] = useState<string | null>(null)
   const [showEmojiPopup, setShowEmojiPopup] = useState(false)
   const [myVotes, setMyVotes] = useState<string[]>([])
-  const [storeHydrated, setStoreHydrated] = useState(false)
-  const [isSkipping, setIsSkipping] = useState(false)
 
-  // persist hydration 완료 대기
+  // 세션 없으면 랜딩으로
   useEffect(() => {
-    setStoreHydrated(true)
-  }, [])
-
-  // 세션 없으면 랜딩으로 (hydration 완료 후에만 체크)
-  useEffect(() => {
-    if (!storeHydrated) return
     if (!session) router.replace('/')
     if (session) setMyParticipantId(session.participantId)
-  }, [session, storeHydrated, router, setMyParticipantId])
+  }, [session, router, setMyParticipantId])
 
   // YouTube 플레이어
   const { loadVideo, play, pause } = useYouTubePlayer({
@@ -103,7 +93,7 @@ export default function RoomPage() {
       }
 
       case 'queue:add':
-        addTrack(p as unknown as QueueTrack)
+        addTrack(p as QueueTrack)
         break
 
       case 'queue:remove':
@@ -134,15 +124,11 @@ export default function RoomPage() {
         break
 
       case 'playback:skip': {
-        const { skippedQueueId, nextTrack } = p as { skippedQueueId: string; nextTrack: QueueTrack | null }
-        if (skippedQueueId) updateTrackStatus(skippedQueueId, 'skipped')
+        const { nextTrack } = p as { skippedQueueId: string; nextTrack: QueueTrack | null }
         if (nextTrack) {
           updateTrackStatus(nextTrack.queueId, 'playing')
-          setPlaying(true)
           loadVideo(nextTrack.youtubeId, nextTrack.durationSec)
-          play()
-        } else {
-          setPlaying(false)
+          if (isPlaying) play()
         }
         break
       }
@@ -152,11 +138,11 @@ export default function RoomPage() {
         break
 
       case 'reaction:add':
-        addReaction(p.emoji as unknown as Emoji, p.participantId as string)
+        addReaction(p.emoji as string, p.participantId as string)
         break
 
       case 'reaction:remove':
-        removeReaction(p.emoji as unknown as Emoji, p.participantId as string)
+        removeReaction(p.emoji as string, p.participantId as string)
         break
 
       case 'vote:update':
@@ -164,7 +150,7 @@ export default function RoomPage() {
         break
 
       case 'participant:join':
-        addParticipant(p as unknown as Participant)
+        addParticipant(p as Participant)
         break
 
       case 'participant:leave':
@@ -180,7 +166,7 @@ export default function RoomPage() {
         break
 
       case 'room:settings_update':
-        updateSettings(p as unknown as Parameters<typeof updateSettings>[0])
+        updateSettings(p as Parameters<typeof updateSettings>[0])
         break
 
       case 'room:end':
@@ -213,62 +199,34 @@ export default function RoomPage() {
     return () => clearInterval(timer)
   }, [isPlaying, positionSec, setPosition])
 
-  if (!storeHydrated || !room || !session) return null
+  if (!room || !session) return null
 
   const currentTrack = tracks.find((t) => t.status === 'playing') ?? null
   const me = participants.find((p) => p.participantId === session.participantId)
   const others = participants.filter((p) => p.participantId !== session.participantId)
-  const pendingTracks = tracks.filter((t) => t.status === 'pending')
-  const isFull = room.plan === 'free' && participants.length >= 10 && session.isHost
 
   return (
-    <main className="bg-[var(--bg-surface)] flex flex-col max-w-[430px] mx-auto relative overflow-hidden" style={{ height: 'var(--frame-h, 100svh)' }}>
+    <main className="bg-[#0A0A0A] min-h-screen flex flex-col max-w-[430px] mx-auto">
+
       {/* 상단 바 */}
       <RoomHeader
         roomName={room.name}
         onInvite={() => setShowInvite(true)}
         onSettings={permissions.canManageRoom ? () => setShowSettings(true) : undefined}
         onLeave={async () => {
-          try {
-            await api.delete(`/api/rooms/${roomId}/participants/me`)
-          } finally {
-            clearRoom()
-            router.push('/')
-          }
+          await api.delete(`/api/rooms/${roomId}/participants/me`)
+          clearRoom()
+          router.push('/')
         }}
         onEndRoom={permissions.canManageRoom ? async () => {
           await api.delete(`/api/rooms/${roomId}`)
         } : undefined}
       />
 
-      {/* 방 풀 배너 (방장 + free + 10명) */}
-      {isFull && (
-        <div
-          className="mx-3 my-2 flex-shrink-0 relative overflow-hidden"
-          style={{ borderRadius: 14, background: 'linear-gradient(135deg, #3C3489 0%, #7F77DD 100%)', padding: 14 }}
-        >
-          {/* 배경 원 */}
-          <div style={{ position: 'absolute', width: 80, height: 80, borderRadius: '50%', background: 'rgba(255,255,255,0.07)', top: -20, right: -20 }} />
-          <div style={{ position: 'absolute', width: 50, height: 50, borderRadius: '50%', background: 'rgba(255,255,255,0.05)', bottom: -10, left: 10 }} />
-          <div style={{ position: 'relative' }}>
-            <div style={{ display: 'inline-flex', alignItems: 'center', gap: 4, background: 'rgba(255,255,255,0.15)', borderRadius: 20, padding: '3px 8px', fontSize: 9, color: 'rgba(255,255,255,0.9)', marginBottom: 8 }}>
-              ✨ Pro로 업그레이드
-            </div>
-            <div style={{ fontSize: 13, fontWeight: 500, color: 'white', marginBottom: 4, lineHeight: 1.4 }}>더 많은 친구와<br />같이 듣고 싶다면?</div>
-            <div style={{ fontSize: 10, color: 'rgba(255,255,255,0.7)', marginBottom: 12, lineHeight: 1.5 }}>Pro는 인원 제한 없이<br />모두를 초대할 수 있어요</div>
-            <button
-              onClick={() => router.push('/plan')}
-              className="w-full flex items-center justify-center active:opacity-80"
-              style={{ height: 34, borderRadius: 10, background: 'white', fontSize: 11, fontWeight: 500, color: '#3C3489', fontFamily: 'inherit' }}
-            >
-              플랜 보기
-            </button>
-          </div>
-        </div>
-      )}
+      {/* 전체 스크롤 영역 — NowPlaying + QueueList 연속 스크롤 */}
+      <div className="flex-1 overflow-y-auto scrollbar-hide">
 
-      {/* 재생 영역 — 스크롤 영향 안받는 고정 영역 */}
-      <div className="flex-shrink-0 z-10">
+        {/* 재생 중인 곡 — 앨범 커버가 화면 절반 차지 */}
         {currentTrack ? (
           <>
             <NowPlaying
@@ -287,13 +245,7 @@ export default function RoomPage() {
                 }
               }}
               onSkip={async () => {
-                if (isSkipping) return
-                setIsSkipping(true)
-                try {
-                  await api.post(`/api/rooms/${roomId}/queue/skip`)
-                } finally {
-                  setIsSkipping(false)
-                }
+                await api.post(`/api/rooms/${roomId}/queue/skip`)
               }}
             />
             <EmojiStack
@@ -305,36 +257,31 @@ export default function RoomPage() {
               }}
             />
           </>
-        ) : pendingTracks.length > 0 && permissions.canPlay ? (
-          <div className="px-4 py-4 bg-[var(--bg-surface)] border-b border-[var(--border-default)]
-                          flex items-center justify-between">
-            <div className="min-w-0">
-              <p className="text-body1 text-[var(--text-primary)] truncate">
-                {pendingTracks[0].title}
-              </p>
-              <p className="text-caption text-[var(--text-secondary)]">
-                {pendingTracks.length}곡 대기 중
-              </p>
+        ) : (
+          /* 재생 중인 곡 없을 때 */
+          <div className="px-6 py-10 flex justify-center">
+            <div className="w-full aspect-square max-w-[280px] rounded-[18px]
+                            bg-white/[0.03] border border-white/[0.06]
+                            flex items-center justify-center">
+              <div className="text-center">
+                <div className="w-16 h-16 rounded-full bg-white/[0.06]
+                                flex items-center justify-center mx-auto mb-3">
+                  <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
+                    <path d="M9 18V5l12-2v13" stroke="#606080" strokeWidth="1.5"
+                      strokeLinecap="round" strokeLinejoin="round"/>
+                    <circle cx="6" cy="18" r="3" stroke="#606080" strokeWidth="1.5"/>
+                    <circle cx="18" cy="16" r="3" stroke="#606080" strokeWidth="1.5"/>
+                  </svg>
+                </div>
+                <p className="text-[13px] text-[#404060]">재생 중인 곡이 없어요</p>
+              </div>
             </div>
-            <button
-              onClick={async () => {
-                await api.post(`/api/rooms/${roomId}/queue/skip`)
-              }}
-              className="flex-shrink-0 ml-3 w-10 h-10 flex items-center justify-center
-                         rounded-full bg-purple-500 text-white active:opacity-70 transition-opacity"
-            >
-              <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
-                <path d="M3 2l9 5-9 5V2z" fill="currentColor"/>
-              </svg>
-            </button>
           </div>
-        ) : null}
-      </div>
+        )}
 
-      {/* 플레이리스트 — 이 영역만 스크롤 */}
-      <div className="flex-1 overflow-y-auto scrollbar-hide px-4 pb-4">
+        {/* 다음 재생 큐 — NowPlaying 아래 바로 이어짐 */}
         <QueueList
-          tracks={pendingTracks}
+          tracks={tracks}
           currentQueueId={currentTrack?.queueId ?? null}
           canReorder={permissions.canReorder}
           canVote={room.settings.voteMode}
@@ -370,36 +317,10 @@ export default function RoomPage() {
           onOtherTap={(id) => setParticipantTracksId(id)}
           onMeTap={() => setShowEmojiPopup(true)}
           onAddTrack={() => router.push(`/room/${roomId}/add`)}
-          onReact={async (emoji) => {
-            await api.post(`/api/rooms/${roomId}/reactions`, { emoji })
-          }}
-          onCancel={async (emoji) => {
-            await api.delete(`/api/rooms/${roomId}/reactions/${encodeURIComponent(emoji)}`)
-          }}
         />
       )}
 
-      {/* 초대 시트 */}
-      <InviteSheet
-        isOpen={showInvite}
-        onClose={() => setShowInvite(false)}
-        room={room}
-        participants={participants}
-      />
-
-      {/* 방 설정 시트 */}
-      {showSettings && (
-        <RoomSettingsSheet
-          isOpen={showSettings}
-          onClose={() => setShowSettings(false)}
-          settings={room.settings}
-          onSave={async (updated) => {
-            await api.put(`/api/rooms/${roomId}/settings`, updated)
-          }}
-        />
-      )}
-
-      {/* 연결 상태 인디케이터 (개발 모드) */}
+      {/* 개발 모드 연결 상태 인디케이터 */}
       {process.env.NODE_ENV === 'development' && !isConnected && (
         <div className="fixed top-1 right-1 w-2 h-2 bg-error rounded-full" />
       )}

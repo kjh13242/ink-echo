@@ -36,6 +36,7 @@ interface YTPlayerOptions {
 
 interface YTPlayer {
   loadVideoById: (options: { videoId: string; startSeconds?: number }) => void
+  cueVideoById: (options: { videoId: string; startSeconds?: number }) => void
   playVideo: () => void
   pauseVideo: () => void
   stopVideo: () => void
@@ -159,6 +160,15 @@ export function useYouTubePlayer({
     playerRef.current.loadVideoById({ videoId: youtubeId, startSeconds: 0 })
   }, [])
 
+  // 재생 없이 미리 버퍼링만 (딜레이 감소용)
+  const cueVideo = useCallback((youtubeId: string, durationSec?: number) => {
+    if (!playerRef.current) return
+    if (durationSec) {
+      expectedEndRef.current = Date.now() + durationSec * 1000
+    }
+    playerRef.current.cueVideoById({ videoId: youtubeId, startSeconds: 0 })
+  }, [])
+
   const play = useCallback(() => {
     playerRef.current?.playVideo()
   }, [])
@@ -171,5 +181,5 @@ export function useYouTubePlayer({
     return playerRef.current?.getCurrentTime() ?? 0
   }, [])
 
-  return { playerRef, loadVideo, play, pause, getCurrentTime }
+  return { playerRef, loadVideo, cueVideo, play, pause, getCurrentTime }
 }

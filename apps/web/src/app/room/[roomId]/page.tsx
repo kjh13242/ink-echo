@@ -47,7 +47,7 @@ export default function RoomPage() {
   }, [session, router, setMyParticipantId])
 
   // YouTube 플레이어
-  const { loadVideo, play, pause } = useYouTubePlayer({
+  const { loadVideo, cueVideo, play, pause } = useYouTubePlayer({
     containerId: 'yt-player',
     onEnded: async () => {
       try {
@@ -199,6 +199,14 @@ export default function RoomPage() {
     return () => clearInterval(timer)
   }, [isPlaying, positionSec, setPosition])
 
+  // 재생 대기 중인 첫 번째 곡 미리 버퍼링 (재생 딜레이 감소)
+  useEffect(() => {
+    if (isPlaying) return
+    const pending = tracks.find((t) => t.status === 'pending')
+    if (pending) cueVideo(pending.youtubeId, pending.durationSec)
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [tracks, isPlaying])
+
   if (!room || !session) return null
 
   const playingTrack = tracks.find((t) => t.status === 'playing') ?? null
@@ -247,11 +255,32 @@ export default function RoomPage() {
               canControl={permissions.canPlay}
               canSkip={permissions.canSkip}
               onPlay={async () => {
-                if (isPlaying) {
-                  await api.post(`/api/rooms/${roomId}/playback/pause`)
+                if (isActuallyPlaying) {
+                  // 일시정지: 즉시 로컬 적용 후 서버 동기화
+                  pause()
+                  setPlaying(false)
+                  api.post(`/api/rooms/${roomId}/playback/pause`).catch(() => {
+                    // 실패 시 서버 상태로 복원됨 (WS 재연결)
+                    setPlaying(true)
+                    play()
+                  })
                 } else {
-                  await api.post(`/api/rooms/${roomId}/playback/play`, {
+                  // 재생: 즉시 로컬 재생 시작 후 서버 동기화
+                  if (playingTrack) {
+                    // 이미 playing 상태인 곡 재개
+                    play()
+                    setPlaying(true)
+                  } else if (firstPendingTrack) {
+                    // pending 곡 → loadVideo로 재생 시작
+                    loadVideo(firstPendingTrack.youtubeId, firstPendingTrack.durationSec)
+                    play()
+                    setPlaying(true)
+                  }
+                  api.post(`/api/rooms/${roomId}/playback/play`, {
                     position_sec: positionSec,
+                  }).catch(() => {
+                    setPlaying(false)
+                    pause()
                   })
                 }
               }}

@@ -206,22 +206,30 @@ export default function RoomPage() {
   const others = participants.filter((p) => p.participantId !== session.participantId)
 
   return (
-    <main className="bg-[#0A0A0A] min-h-screen flex flex-col max-w-[430px] mx-auto">
+    <main
+      className="bg-[#0A0A0A] flex flex-col relative overflow-hidden"
+      style={{ height: 'var(--frame-h, 100svh)' }}
+    >
 
       {/* 상단 바 */}
-      <RoomHeader
-        roomName={room.name}
-        onInvite={() => setShowInvite(true)}
-        onSettings={permissions.canManageRoom ? () => setShowSettings(true) : undefined}
-        onLeave={async () => {
-          await api.delete(`/api/rooms/${roomId}/participants/me`)
-          clearRoom()
-          router.push('/')
-        }}
-        onEndRoom={permissions.canManageRoom ? async () => {
-          await api.delete(`/api/rooms/${roomId}`)
-        } : undefined}
-      />
+      <div className="flex-shrink-0">
+        <RoomHeader
+          roomName={room.name}
+          onInvite={() => setShowInvite(true)}
+          onSettings={permissions.canManageRoom ? () => setShowSettings(true) : undefined}
+          onLeave={async () => {
+            try {
+              await api.delete(`/api/rooms/${roomId}/participants/me`)
+            } finally {
+              clearRoom()
+              router.push('/')
+            }
+          }}
+          onEndRoom={permissions.canManageRoom ? async () => {
+            await api.delete(`/api/rooms/${roomId}`)
+          } : undefined}
+        />
+      </div>
 
       {/* 전체 스크롤 영역 — NowPlaying + QueueList 연속 스크롤 */}
       <div className="flex-1 overflow-y-auto scrollbar-hide">

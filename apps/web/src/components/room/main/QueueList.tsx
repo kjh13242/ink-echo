@@ -3,7 +3,7 @@
 import { useState, useRef } from 'react'
 import { Avatar } from '@/components/common/Avatar'
 import { EmptyState } from '@/components/common/EmptyState'
-import { cn } from '@/lib/utils'
+import { cn, formatDuration } from '@/lib/utils'
 import type { QueueTrack, Avatar as AvatarType } from '@/types'
 
 interface QueueListProps {
@@ -153,6 +153,13 @@ function QueueTrackItem({
           <span className="inline-block text-[10px] text-error mt-0.5">재생 불가</span>
         )}
       </div>
+
+      {/* 재생 시간 */}
+      {track.durationSec > 0 && (
+        <span className="text-[11px] text-[#404060] flex-shrink-0">
+          {formatDuration(track.durationSec)}
+        </span>
+      )}
 
       {/* 신청자 아바타 */}
       <button onClick={onAvatarTap} className="flex-shrink-0">

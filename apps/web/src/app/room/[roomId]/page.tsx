@@ -201,7 +201,10 @@ export default function RoomPage() {
 
   if (!room || !session) return null
 
-  const currentTrack = tracks.find((t) => t.status === 'playing') ?? null
+  const playingTrack = tracks.find((t) => t.status === 'playing') ?? null
+  const firstPendingTrack = tracks.find((t) => t.status === 'pending') ?? null
+  const currentTrack = playingTrack ?? firstPendingTrack
+  const isActuallyPlaying = isPlaying && !!playingTrack
   const me = participants.find((p) => p.participantId === session.participantId)
   const others = participants.filter((p) => p.participantId !== session.participantId)
 
@@ -239,8 +242,8 @@ export default function RoomPage() {
           <>
             <NowPlaying
               track={currentTrack}
-              isPlaying={isPlaying}
-              positionSec={positionSec}
+              isPlaying={isActuallyPlaying}
+              positionSec={playingTrack ? positionSec : 0}
               canControl={permissions.canPlay}
               canSkip={permissions.canSkip}
               onPlay={async () => {
@@ -266,7 +269,7 @@ export default function RoomPage() {
             />
           </>
         ) : (
-          /* 재생 중인 곡 없을 때 */
+          /* 큐가 완전히 비어있을 때 */
           <div className="px-6 py-10 flex justify-center">
             <div className="w-full aspect-square max-w-[280px] rounded-[18px]
                             bg-white/[0.03] border border-white/[0.06]
@@ -281,7 +284,7 @@ export default function RoomPage() {
                     <circle cx="18" cy="16" r="3" stroke="#606080" strokeWidth="1.5"/>
                   </svg>
                 </div>
-                <p className="text-[13px] text-[#404060]">재생 중인 곡이 없어요</p>
+                <p className="text-[13px] text-[#404060]">재생할 곡을 추가해보세요</p>
               </div>
             </div>
           </div>

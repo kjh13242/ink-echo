@@ -11,7 +11,7 @@ import { useWebSocket } from '@/hooks/useWebSocket'
 import { useYouTubePlayer } from '@/hooks/useYouTubePlayer'
 import { useRoomPermission } from '@/hooks/useRoomPermission'
 import { api } from '@/lib/api'
-import type { WSEvent, QueueTrack, Participant } from '@/types'
+import type { WSEvent, QueueTrack, Participant, Emoji } from '@/types'
 
 import { RoomHeader } from '@/components/room/main/RoomHeader'
 import { NowPlaying } from '@/components/room/main/NowPlaying'
@@ -93,7 +93,7 @@ export default function RoomPage() {
       }
 
       case 'queue:add':
-        addTrack(p as QueueTrack)
+        addTrack(p as unknown as QueueTrack)
         break
 
       case 'queue:remove':
@@ -138,11 +138,11 @@ export default function RoomPage() {
         break
 
       case 'reaction:add':
-        addReaction(p.emoji as string, p.participantId as string)
+        addReaction(p.emoji as Emoji, p.participantId as string)
         break
 
       case 'reaction:remove':
-        removeReaction(p.emoji as string, p.participantId as string)
+        removeReaction(p.emoji as Emoji, p.participantId as string)
         break
 
       case 'vote:update':
@@ -150,7 +150,7 @@ export default function RoomPage() {
         break
 
       case 'participant:join':
-        addParticipant(p as Participant)
+        addParticipant(p as unknown as Participant)
         break
 
       case 'participant:leave':
@@ -166,7 +166,7 @@ export default function RoomPage() {
         break
 
       case 'room:settings_update':
-        updateSettings(p as Parameters<typeof updateSettings>[0])
+        updateSettings(p as unknown as Parameters<typeof updateSettings>[0])
         break
 
       case 'room:end':
@@ -325,6 +325,12 @@ export default function RoomPage() {
           onOtherTap={(id) => setParticipantTracksId(id)}
           onMeTap={() => setShowEmojiPopup(true)}
           onAddTrack={() => router.push(`/room/${roomId}/add`)}
+          onReact={async (emoji) => {
+            await api.post(`/api/rooms/${roomId}/reactions`, { emoji })
+          }}
+          onCancel={async (emoji) => {
+            await api.delete(`/api/rooms/${roomId}/reactions/${encodeURIComponent(emoji)}`)
+          }}
         />
       )}
 

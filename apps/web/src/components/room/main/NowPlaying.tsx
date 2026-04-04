@@ -110,10 +110,8 @@ export function NowPlaying({
       {/* 프로그레스 바 */}
       <div style={{ padding: '8px 28px 4px' }}>
         <div
-          className="group cursor-pointer relative"
-          style={{ height: 4, background: 'rgba(255,255,255,0.12)', borderRadius: 2 }}
+          style={{ height: 4, background: 'rgba(255,255,255,0.12)', borderRadius: 2, overflow: 'hidden' }}
         >
-          {/* 채워진 부분 */}
           <div
             style={{
               height: '100%',
@@ -121,19 +119,6 @@ export function NowPlaying({
               background: '#A89EF5',
               borderRadius: 2,
               transition: 'width 1s linear',
-            }}
-          />
-          {/* 썸 */}
-          <div
-            className="absolute opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none"
-            style={{
-              top: '50%',
-              left: `${progress * 100}%`,
-              transform: 'translate(-50%, -50%)',
-              width: 12, height: 12,
-              borderRadius: '50%',
-              background: '#A89EF5',
-              transition: 'left 1s linear, opacity 0.15s',
             }}
           />
         </div>
@@ -144,23 +129,7 @@ export function NowPlaying({
       </div>
 
       {/* 재생 컨트롤 */}
-      <div style={{ padding: '8px 20px 16px', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-
-        {/* 셔플 (장식용) */}
-        <button className="active:opacity-60 transition-opacity" style={{ padding: 8, color: '#606080', background: 'none', border: 'none', cursor: 'pointer' }}>
-          <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
-            <path d="M3 10c0-2.8 2.2-5 5-5h6M17 10c0 2.8-2.2 5-5 5H6" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"/>
-            <path d="M12 7l2-2-2-2M8 15l-2 2 2 2" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
-          </svg>
-        </button>
-
-        {/* 이전 (장식용) */}
-        <button className="active:opacity-60 transition-opacity" style={{ padding: 8, color: '#A0A0C0', background: 'none', border: 'none', cursor: 'pointer' }}>
-          <svg width="28" height="28" viewBox="0 0 28 28" fill="none">
-            <path d="M22 7l-9 7 9 7V7z" fill="currentColor"/>
-            <rect x="7" y="7" width="3" height="14" rx="1.5" fill="currentColor"/>
-          </svg>
-        </button>
+      <div style={{ padding: '8px 20px 16px', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 32 }}>
 
         {/* 재생/정지 */}
         <button
@@ -191,13 +160,6 @@ export function NowPlaying({
           <svg width="28" height="28" viewBox="0 0 28 28" fill="none">
             <path d="M6 7l9 7-9 7V7z" fill="currentColor"/>
             <rect x="18" y="7" width="3" height="14" rx="1.5" fill="currentColor"/>
-          </svg>
-        </button>
-
-        {/* 큐 (장식용) */}
-        <button className="active:opacity-60 transition-opacity" style={{ padding: 8, color: '#606080', background: 'none', border: 'none', cursor: 'pointer' }}>
-          <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
-            <path d="M3 6h14M3 10h10M3 14h7" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"/>
           </svg>
         </button>
       </div>

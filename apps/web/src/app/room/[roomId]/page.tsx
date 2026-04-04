@@ -110,9 +110,16 @@ export default function RoomPage() {
 
       case 'playback:play': {
         setPlaying(true)
-        const currentTrack = tracks.find((t) => t.status === 'playing')
-        if (currentTrack) {
-          loadVideo(currentTrack.youtubeId, currentTrack.durationSec)
+        // currentQueueId가 있으면 해당 곡을 playing으로 마킹
+        const playQueueId = p.currentQueueId as string | undefined
+        const playTrack = playQueueId
+          ? tracks.find((t) => t.queueId === playQueueId)
+          : tracks.find((t) => t.status === 'playing' || t.status === 'pending')
+        if (playTrack) {
+          if (playTrack.status !== 'playing') {
+            updateTrackStatus(playTrack.queueId, 'playing')
+          }
+          loadVideo(playTrack.youtubeId, playTrack.durationSec)
           play()
         }
         break
@@ -124,11 +131,16 @@ export default function RoomPage() {
         break
 
       case 'playback:skip': {
-        const { nextTrack } = p as { skippedQueueId: string; nextTrack: QueueTrack | null }
+        const { skippedQueueId, nextTrack } = p as { skippedQueueId: string; nextTrack: QueueTrack | null }
+        // 스킵된 곡을 skipped로 마킹
+        if (skippedQueueId) updateTrackStatus(skippedQueueId, 'skipped')
         if (nextTrack) {
           updateTrackStatus(nextTrack.queueId, 'playing')
+          setPosition(0)
           loadVideo(nextTrack.youtubeId, nextTrack.durationSec)
-          if (isPlaying) play()
+          play()
+        } else {
+          setPlaying(false)
         }
         break
       }

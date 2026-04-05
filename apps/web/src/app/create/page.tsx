@@ -101,14 +101,14 @@ export default function CreatePage() {
             <path d="M7 1L3 5L7 9" stroke="var(--text-secondary)" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
           </svg>
         </button>
-        <span style={{ fontSize: 11, fontWeight: 500, color: 'var(--text-primary)', flex: 1 }}>방 만들기</span>
+        <span style={{ fontSize: 14, fontWeight: 500, color: 'var(--text-primary)', flex: 1 }}>방 만들기</span>
       </div>
 
       {/* 바디 */}
       <div className="flex-1 flex flex-col" style={{ padding: '20px 16px 80px' }}>
 
         {/* 방 이름 */}
-        <div style={{ fontSize: 10, color: 'var(--text-secondary)', marginBottom: 5, fontFamily: 'inherit' }}>방 이름</div>
+        <div style={{ fontSize: 13, color: 'var(--text-secondary)', marginBottom: 5, fontFamily: 'inherit' }}>방 이름</div>
         <div className="relative" style={{ marginBottom: 6 }}>
           <input
             type="text"
@@ -154,12 +154,12 @@ export default function CreatePage() {
             </svg>
           </button>
         </div>
-        <div style={{ fontSize: 9, color: 'var(--text-placeholder)', marginBottom: 20, paddingLeft: 2, fontFamily: 'inherit' }}>
+        <div style={{ fontSize: 13, color: 'var(--text-placeholder)', marginBottom: 20, paddingLeft: 2, fontFamily: 'inherit' }}>
           ↺ 누르면 다른 이름으로 바꿔줘요
         </div>
 
         {/* 아바타 */}
-        <div style={{ fontSize: 10, color: 'var(--text-secondary)', marginBottom: 8, fontFamily: 'inherit' }}>내 캐릭터</div>
+        <div style={{ fontSize: 13, color: 'var(--text-secondary)', marginBottom: 8, fontFamily: 'inherit' }}>내 캐릭터</div>
         <div className="flex" style={{ gap: 8, marginBottom: 24 }}>
           {AVATARS.map((a) => (
             <div
@@ -203,7 +203,7 @@ export default function CreatePage() {
               </div>
               <span
                 style={{
-                  fontSize: 7, fontFamily: 'inherit',
+                  fontSize: 12, fontFamily: 'inherit',
                   color: avatar === a.id ? 'var(--color-cta)' : 'var(--text-tertiary)',
                   fontWeight: avatar === a.id ? 500 : 400,
                 }}
@@ -215,7 +215,7 @@ export default function CreatePage() {
         </div>
 
         {/* 닉네임 */}
-        <div style={{ fontSize: 10, color: 'var(--text-secondary)', marginBottom: 5, fontFamily: 'inherit' }}>
+        <div style={{ fontSize: 13, color: 'var(--text-secondary)', marginBottom: 5, fontFamily: 'inherit' }}>
           닉네임 <span style={{ color: 'var(--text-placeholder)' }}>(선택)</span>
         </div>
         <div className="relative" style={{ marginBottom: 24 }}>
@@ -230,7 +230,7 @@ export default function CreatePage() {
               height: 38, borderRadius: 10,
               border: '0.5px solid var(--border-default)',
               background: 'var(--bg-input)',
-              fontSize: 12, color: 'var(--text-primary)',
+              fontSize: 14, color: 'var(--text-primary)',
               fontFamily: 'inherit',
               paddingLeft: 11, paddingRight: 34,
               caretColor: 'var(--color-cta)',
@@ -251,7 +251,7 @@ export default function CreatePage() {
             className="absolute pointer-events-none"
             style={{
               right: 9, top: '50%', transform: 'translateY(-50%)',
-              fontSize: 8, color: '#C0BCD8',
+              fontSize: 12, color: '#C0BCD8',
             }}
           >
             {nickname.length}/10
@@ -278,7 +278,7 @@ export default function CreatePage() {
             height: 44, borderRadius: 14,
             background: 'var(--color-cta)',
             color: 'var(--color-cta-text)',
-            fontSize: 13, fontWeight: 500,
+            fontSize: 14, fontWeight: 500,
             fontFamily: 'inherit',
             boxShadow: '0 4px 12px rgba(127, 119, 221, 0.3)'
           }}
@@ -287,7 +287,7 @@ export default function CreatePage() {
         </button>
         <div
           style={{
-            fontSize: 9, color: 'var(--text-placeholder)',
+            fontSize: 13, color: 'var(--text-placeholder)',
             textAlign: 'center', marginTop: 6, fontFamily: 'inherit',
           }}
         >

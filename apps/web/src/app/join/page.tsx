@@ -96,14 +96,14 @@ export default function JoinPage() {
             <path d="M7 1L3 5L7 9" stroke="var(--text-secondary)" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
           </svg>
         </button>
-        <span style={{ fontSize: 11, fontWeight: 500, color: 'var(--text-primary)', flex: 1 }}>코드로 입장</span>
+        <span style={{ fontSize: 14, fontWeight: 500, color: 'var(--text-primary)', flex: 1 }}>코드로 입장</span>
       </div>
 
       {/* 바디 */}
       <div className="flex-1 flex flex-col justify-center" style={{ padding: '20px 16px 80px' }}>
 
           {/* 코드 입력 */}
-          <div style={{ fontSize: 11, color: 'var(--text-secondary)', marginBottom: 8, fontFamily: 'inherit' }}>방 코드 입력</div>
+          <div style={{ fontSize: 14, color: 'var(--text-secondary)', marginBottom: 8, fontFamily: 'inherit' }}>방 코드 입력</div>
           <div style={{ marginBottom: 8 }}>
             <input
               type="text"
@@ -140,13 +140,13 @@ export default function JoinPage() {
             />
           </div>
           {codeError ? (
-            <div style={{ fontSize: 9, color: 'var(--text-error)', textAlign: 'center', marginBottom: 20 }}>{codeError}</div>
+            <div style={{ fontSize: 13, color: 'var(--text-error)', textAlign: 'center', marginBottom: 20 }}>{codeError}</div>
           ) : (
-            <div style={{ fontSize: 9, color: 'var(--text-placeholder)', textAlign: 'center', marginBottom: 20 }}>친구에게 받은 코드를 입력해주세요</div>
+            <div style={{ fontSize: 13, color: 'var(--text-placeholder)', textAlign: 'center', marginBottom: 20 }}>친구에게 받은 코드를 입력해주세요</div>
           )}
 
           {/* 아바타 */}
-          <div style={{ fontSize: 10, color: 'var(--text-secondary)', marginBottom: 8, fontFamily: 'inherit' }}>내 캐릭터</div>
+          <div style={{ fontSize: 13, color: 'var(--text-secondary)', marginBottom: 8, fontFamily: 'inherit' }}>내 캐릭터</div>
           <div className="flex" style={{ gap: 8, marginBottom: 8 }}>
             {AVATARS.map((a) => (
               <div
@@ -190,7 +190,7 @@ export default function JoinPage() {
                 </div>
                 <span
                   style={{
-                    fontSize: 7, fontFamily: 'inherit',
+                    fontSize: 12, fontFamily: 'inherit',
                     color: avatar === a.id ? 'var(--color-cta)' : 'var(--text-tertiary)',
                     fontWeight: avatar === a.id ? 500 : 400,
                   }}
@@ -220,7 +220,7 @@ export default function JoinPage() {
             height: 44, borderRadius: 14,
             background: canJoin ? 'var(--color-cta)' : 'rgba(180,176,220,0.3)',
             color: canJoin ? 'var(--color-cta-text)' : '#A8A4C8',
-            fontSize: 13,
+            fontSize: 14,
             fontFamily: 'inherit',
             boxShadow: canJoin ? '0 4px 12px rgba(127, 119, 221, 0.3)' : 'none',
           }}

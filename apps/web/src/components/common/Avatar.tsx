@@ -44,7 +44,7 @@ export function Avatar({
       {showBubble && (
         <div
           className={cn(
-            'absolute bottom-full mb-1 px-2 py-1 rounded-btn text-[9px]',
+            'absolute bottom-full mb-1 px-2 py-1 rounded-btn text-[13px]',
             'bg-[var(--bg-surface)] border border-[var(--border-default)]',
             'text-[var(--text-primary)] whitespace-nowrap max-w-[120px] truncate',
             'shadow-sm'
@@ -57,7 +57,7 @@ export function Avatar({
       {/* 방장 왕관 */}
       {isHost && (
         <span
-          className="absolute -top-2 left-1/2 -translate-x-1/2 text-[10px]"
+          className="absolute -top-2 left-1/2 -translate-x-1/2 text-[13px]"
           style={{ lineHeight: 1 }}
         >
           👑

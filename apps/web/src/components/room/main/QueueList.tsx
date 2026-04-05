@@ -35,11 +35,11 @@ export function QueueList({
     <div className="bg-[#0A0A0A] pb-28">
       {/* 다음 재생 헤더 */}
       <div className="px-5 pt-3 pb-2 flex items-center justify-between">
-        <span className="text-[11px] font-medium text-[#606080] tracking-wider uppercase">
+        <span className="text-[13px] font-medium text-[#606080] tracking-wider uppercase">
           다음 재생
         </span>
         {pendingTracks.length > 0 && (
-          <span className="text-[11px] text-[#A89EF5]">
+          <span className="text-[13px] text-[#A89EF5]">
             {pendingTracks.length}곡
           </span>
         )}
@@ -140,23 +140,23 @@ function QueueTrackItem({
       {/* 곡 정보 */}
       <div className="flex-1 min-w-0">
         <p className={cn(
-          'text-[13px] font-medium truncate',
+          'text-[14px] font-medium truncate',
           isNext ? 'text-[#A89EF5]' : 'text-[#F0EEFF]'
         )}>
           {track.title}
         </p>
-        <p className="text-[11px] text-[#606080] truncate mt-0.5">{track.artist}</p>
+        <p className="text-[13px] text-[#606080] truncate mt-0.5">{track.artist}</p>
         {track.message && (
-          <p className="text-[10px] text-[#404060] truncate mt-0.5">"{track.message}"</p>
+          <p className="text-[12px] text-[#404060] truncate mt-0.5">"{track.message}"</p>
         )}
         {isUnavailable && (
-          <span className="inline-block text-[10px] text-error mt-0.5">재생 불가</span>
+          <span className="inline-block text-[12px] text-error mt-0.5">재생 불가</span>
         )}
       </div>
 
       {/* 재생 시간 */}
       {track.durationSec > 0 && (
-        <span className="text-[11px] text-[#404060] flex-shrink-0">
+        <span className="text-[13px] text-[#404060] flex-shrink-0">
           {formatDuration(track.durationSec)}
         </span>
       )}
@@ -172,7 +172,7 @@ function QueueTrackItem({
           onClick={onVote}
           className={cn(
             'flex flex-col items-center gap-0.5 px-1.5 py-1 rounded-lg flex-shrink-0',
-            'text-[10px] transition-colors active:scale-95',
+            'text-[12px] transition-colors active:scale-95',
             hasVoted
               ? 'text-[#A89EF5] bg-[rgba(168,158,245,0.15)]'
               : 'text-[#404060] bg-white/[0.05]'

@@ -81,7 +81,7 @@ export default function JoinByLinkPage() {
            style={{ minHeight: 'var(--frame-h, 100svh)' }}>
         <div style={{ fontSize: 32, marginBottom: 12 }}>🔒</div>
         <div style={{ fontSize: 15, fontWeight: 500, color: 'var(--text-primary)', marginBottom: 6, textAlign: 'center' }}>방이 꽉 찼어요</div>
-        <div style={{ fontSize: 11, color: 'var(--text-tertiary)', textAlign: 'center', lineHeight: 1.6, marginBottom: 24 }}>
+        <div style={{ fontSize: 13, color: 'var(--text-tertiary)', textAlign: 'center', lineHeight: 1.6, marginBottom: 24 }}>
           무료 방은 최대 10명까지 입장할 수 있어요<br />방장이 Pro로 업그레이드하면 더 많이 들어올 수 있어요
         </div>
         <button
@@ -90,7 +90,7 @@ export default function JoinByLinkPage() {
           style={{
             width: '100%', maxWidth: 280, height: 44, borderRadius: 14,
             background: 'var(--color-cta)', color: 'var(--color-cta-text)',
-            fontSize: 13, fontWeight: 500, fontFamily: 'inherit',
+            fontSize: 14, fontWeight: 500, fontFamily: 'inherit',
           }}
         >
           돌아가기
@@ -111,7 +111,7 @@ export default function JoinByLinkPage() {
           style={{
             marginTop: 16, height: 40, borderRadius: 12, padding: '0 20px',
             border: '0.5px solid var(--border-default)',
-            background: 'transparent', fontSize: 12, color: 'var(--text-secondary)', fontFamily: 'inherit',
+            background: 'transparent', fontSize: 13, color: 'var(--text-secondary)', fontFamily: 'inherit',
           }}
         >
           돌아가기
@@ -156,7 +156,7 @@ export default function JoinByLinkPage() {
             <path d="M7 1L3 5L7 9" stroke="var(--text-secondary)" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
           </svg>
         </button>
-        <span style={{ fontSize: 11, fontWeight: 500, color: 'var(--text-primary)', flex: 1 }}>초대받은 방</span>
+        <span style={{ fontSize: 14, fontWeight: 500, color: 'var(--text-primary)', flex: 1 }}>초대받은 방</span>
       </div>
 
       {/* 바디 */}
@@ -166,12 +166,12 @@ export default function JoinByLinkPage() {
           marginBottom: 24, padding: '12px 14px', borderRadius: 12,
           background: 'var(--bg-input)', border: '0.5px solid var(--border-default)',
         }}>
-          <div style={{ fontSize: 9, color: 'var(--text-tertiary)', marginBottom: 3 }}>입장할 방</div>
-          <div style={{ fontSize: 15, fontWeight: 600, color: 'var(--text-primary)' }}>{roomName}</div>
+          <div style={{ fontSize: 13, color: 'var(--text-tertiary)', marginBottom: 3 }}>입장할 방</div>
+          <div style={{ fontSize: 16, fontWeight: 600, color: 'var(--text-primary)' }}>{roomName}</div>
         </div>
 
         {/* 아바타 */}
-        <div style={{ fontSize: 10, color: 'var(--text-secondary)', marginBottom: 8, fontFamily: 'inherit' }}>내 캐릭터</div>
+        <div style={{ fontSize: 13, color: 'var(--text-secondary)', marginBottom: 8, fontFamily: 'inherit' }}>내 캐릭터</div>
         <div className="flex" style={{ gap: 8, marginBottom: 8 }}>
           {AVATARS.map((a) => (
             <div
@@ -214,7 +214,7 @@ export default function JoinByLinkPage() {
                 )}
               </div>
               <span style={{
-                fontSize: 7, fontFamily: 'inherit',
+                fontSize: 12, fontFamily: 'inherit',
                 color: avatar === a.id ? 'var(--color-cta)' : 'var(--text-tertiary)',
                 fontWeight: avatar === a.id ? 500 : 400,
               }}>
@@ -225,7 +225,7 @@ export default function JoinByLinkPage() {
         </div>
 
         {/* 닉네임 */}
-        <div style={{ fontSize: 10, color: 'var(--text-secondary)', marginBottom: 5, marginTop: 16, fontFamily: 'inherit' }}>
+        <div style={{ fontSize: 13, color: 'var(--text-secondary)', marginBottom: 5, marginTop: 16, fontFamily: 'inherit' }}>
           닉네임 <span style={{ color: 'var(--text-placeholder)' }}>(선택)</span>
         </div>
         <div className="relative">
@@ -240,7 +240,7 @@ export default function JoinByLinkPage() {
               height: 38, borderRadius: 10,
               border: '0.5px solid var(--border-default)',
               background: 'var(--bg-input)',
-              fontSize: 12, color: 'var(--text-primary)',
+              fontSize: 14, color: 'var(--text-primary)',
               fontFamily: 'inherit',
               paddingLeft: 11, paddingRight: 34,
               caretColor: 'var(--color-cta)',
@@ -258,7 +258,7 @@ export default function JoinByLinkPage() {
             }}
           />
           <span className="absolute pointer-events-none"
-                style={{ right: 9, top: '50%', transform: 'translateY(-50%)', fontSize: 8, color: '#C0BCD8' }}>
+                style={{ right: 9, top: '50%', transform: 'translateY(-50%)', fontSize: 12, color: '#C0BCD8' }}>
             {nickname.length}/10
           </span>
         </div>
@@ -282,7 +282,7 @@ export default function JoinByLinkPage() {
             height: 44, borderRadius: 14,
             background: 'var(--color-cta)',
             color: 'var(--color-cta-text)',
-            fontSize: 13, fontFamily: 'inherit',
+            fontSize: 14, fontFamily: 'inherit',
             boxShadow: '0 4px 12px rgba(127, 119, 221, 0.3)',
           }}
         >

@@ -45,7 +45,7 @@ export default function LandingPage() {
 
         <h1
           style={{
-            fontSize: 18, fontWeight: 500,
+            fontSize: 20, fontWeight: 500,
             color: 'var(--text-primary)',
             marginBottom: 6, textAlign: 'center', lineHeight: 1.3,
           }}
@@ -54,7 +54,7 @@ export default function LandingPage() {
         </h1>
         <p
           style={{
-            fontSize: 11, color: 'var(--text-tertiary)',
+            fontSize: 14, color: 'var(--text-tertiary)',
             textAlign: 'center', lineHeight: 1.6, marginBottom: 28,
           }}
         >
@@ -69,7 +69,7 @@ export default function LandingPage() {
                 height: 44, borderRadius: 14,
                 background: 'var(--color-cta)',
                 color: 'var(--color-cta-text)',
-                fontSize: 13, fontWeight: 500,
+                fontSize: 14, fontWeight: 500,
                 cursor: 'pointer',
                 boxShadow: '0 4px 12px rgba(127, 119, 221, 0.3)'
               }}
@@ -85,7 +85,7 @@ export default function LandingPage() {
                 background: 'transparent',
                 border: '0.5px solid rgba(180,176,220,0.7)',
                 color: 'var(--text-secondary)',
-                fontSize: 12,
+                fontSize: 14,
                 cursor: 'pointer',
               }}
             >

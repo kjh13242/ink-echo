@@ -25,9 +25,9 @@ const variantStyles: Record<Variant, string> = {
 }
 
 const sizeStyles: Record<Size, string> = {
-  sm: 'h-8 px-3 text-[10px] rounded-btn',
-  md: 'h-[38px] px-4 text-[11px] rounded-btn',
-  lg: 'h-11 px-5 text-[13px] rounded-btn-lg',
+  sm: 'h-8 px-3 text-[13px] rounded-btn',
+  md: 'h-[38px] px-4 text-[14px] rounded-btn',
+  lg: 'h-11 px-5 text-[15px] rounded-btn-lg',
 }
 
 export function Button({

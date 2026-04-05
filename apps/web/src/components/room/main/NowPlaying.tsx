@@ -94,7 +94,7 @@ export function NowPlaying({
             {track.artist}
           </p>
           {track.message && (
-            <p style={{ fontSize: 11, color: '#606080', marginTop: 4, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+            <p style={{ fontSize: 13, color: '#606080', marginTop: 4, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
               &ldquo;{track.message}&rdquo;
             </p>
           )}
@@ -123,8 +123,8 @@ export function NowPlaying({
           />
         </div>
         <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: 6 }}>
-          <span style={{ fontSize: 11, color: '#606080' }}>{formatDuration(positionSec)}</span>
-          <span style={{ fontSize: 11, color: '#606080' }}>{formatDuration(track.durationSec)}</span>
+          <span style={{ fontSize: 13, color: '#606080' }}>{formatDuration(positionSec)}</span>
+          <span style={{ fontSize: 13, color: '#606080' }}>{formatDuration(track.durationSec)}</span>
         </div>
       </div>
 

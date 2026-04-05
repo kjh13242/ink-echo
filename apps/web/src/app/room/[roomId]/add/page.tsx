@@ -116,9 +116,9 @@ export default function AddTrackPage() {
             <path d="M7 1L3 5L7 9" stroke="var(--text-secondary)" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
           </svg>
         </button>
-        <span className="text-[11px] font-medium text-[var(--text-primary)] flex-1">곡 추가하기</span>
+        <span className="text-[13px] font-medium text-[var(--text-primary)] flex-1">곡 추가하기</span>
         {selectedTracks.length > 0 && (
-          <span className="text-[9px] font-medium" style={{ color: 'var(--color-cta)' }}>
+          <span className="text-[12px] font-medium" style={{ color: 'var(--color-cta)' }}>
             {selectedTracks.length}곡 선택
           </span>
         )}
@@ -163,10 +163,10 @@ export default function AddTrackPage() {
 
           {/* 정보 + 프로그레스 */}
           <div className="flex-1 min-w-0">
-            <div className="text-[10px] font-medium truncate" style={{ color: 'var(--text-primary)', lineHeight: 1.3 }}>
+            <div className="text-[12px] font-medium truncate" style={{ color: 'var(--text-primary)', lineHeight: 1.3 }}>
               {currentTrack.title}
             </div>
-            <div className="text-[8px] truncate" style={{ color: 'var(--text-tertiary)', lineHeight: 1.3 }}>
+            <div className="text-[11px] truncate" style={{ color: 'var(--text-tertiary)', lineHeight: 1.3 }}>
               {currentTrack.artist}
             </div>
             {/* 프로그레스 바 */}
@@ -222,7 +222,7 @@ export default function AddTrackPage() {
             onFocus={() => setIsFocused(true)}
             onBlur={() => setTimeout(() => setIsFocused(false), 150)}
             placeholder="곡, 아티스트 검색"
-            className="w-full h-[34px] text-[11px] outline-none transition-colors pl-[28px] pr-[10px]"
+            className="w-full h-[34px] text-[13px] outline-none transition-colors pl-[28px] pr-[10px]"
             style={{
               borderRadius: 10,
               border: `0.5px solid ${isFocused || query ? 'rgba(127,119,221,0.5)' : 'var(--border-default)'}`,
@@ -271,7 +271,7 @@ export default function AddTrackPage() {
                     <path d="M8 5v3.5l2 1.5" stroke="var(--text-secondary)" strokeWidth="1.2" strokeLinecap="round" />
                   </svg>
                   <button
-                    className="flex-1 text-left text-[11px]"
+                    className="flex-1 text-left text-[13px]"
                     style={{ color: 'var(--text-primary)', fontFamily: 'inherit' }}
                     onClick={() => setQuery(q)}
                   >
@@ -279,7 +279,7 @@ export default function AddTrackPage() {
                   </button>
                   <button
                     onClick={() => deleteRecent(q)}
-                    className="text-[9px] px-1"
+                    className="text-[12px] px-1"
                     style={{ color: 'var(--text-placeholder)' }}
                   >
                     ✕
@@ -300,7 +300,7 @@ export default function AddTrackPage() {
           <button
             key={t}
             onClick={() => setTab(t)}
-            className="flex-1 py-[6px] text-[10px] text-center transition-colors"
+            className="flex-1 py-[6px] text-[13px] text-center transition-colors"
             style={{
               fontFamily: 'inherit',
               fontWeight: tab === t ? 500 : 400,
@@ -331,7 +331,7 @@ export default function AddTrackPage() {
                     }
                     setActiveMood(tag.id)
                   }}
-                  className="text-[9px] transition-colors"
+                  className="text-[12px] transition-colors"
                   style={{
                     fontFamily: 'inherit',
                     padding: '3px 9px',
@@ -353,7 +353,7 @@ export default function AddTrackPage() {
       <div className="flex-1 overflow-y-auto scrollbar-hide">
         {/* 섹션 레이블 */}
         <div
-          className="px-3 pt-[6px] pb-[3px] text-[8px] tracking-[0.05em] font-medium"
+          className="px-3 pt-[6px] pb-[3px] text-[11px] tracking-[0.05em] font-medium"
           style={{ color: 'var(--text-tertiary)' }}
         >
           {isSearchMode
@@ -366,7 +366,7 @@ export default function AddTrackPage() {
         {isLoading ? (
           <TrackSkeleton />
         ) : trackList.length === 0 && isSearchMode ? (
-          <p className="text-[11px] text-center py-12 px-4" style={{ color: 'var(--text-tertiary)' }}>
+          <p className="text-[13px] text-center py-12 px-4" style={{ color: 'var(--text-tertiary)' }}>
             &lsquo;{query}&rsquo;에 대한 결과가 없어요
           </p>
         ) : (
@@ -404,10 +404,10 @@ export default function AddTrackPage() {
 
                 {/* 정보 */}
                 <div className="flex-1 min-w-0">
-                  <div className="text-[11px] font-medium truncate" style={{ color: 'var(--text-primary)' }}>
+                  <div className="text-[13px] font-medium truncate" style={{ color: 'var(--text-primary)' }}>
                     {track.title}
                   </div>
-                  <div className="text-[9px] mt-[1px] truncate" style={{ color: 'var(--text-secondary)' }}>
+                  <div className="text-[12px] mt-[1px] truncate" style={{ color: 'var(--text-secondary)' }}>
                     {track.artist}
                   </div>
                 </div>
@@ -421,7 +421,7 @@ export default function AddTrackPage() {
                   }}
                 >
                   {isSelected ? (
-                    <span className="text-[10px]" style={{ color: 'var(--color-cta)' }}>✓</span>
+                    <span className="text-[12px]" style={{ color: 'var(--color-cta)' }}>✓</span>
                   ) : (
                     <svg width="9" height="9" viewBox="0 0 9 9" fill="none">
                       <rect x="3.75" y="0" width="1.5" height="9" rx="0.75" fill="var(--text-tertiary)" />
@@ -465,10 +465,10 @@ export default function AddTrackPage() {
                   )}
                 </div>
                 <div className="flex-1 min-w-0">
-                  <div className="text-[10px] font-medium truncate" style={{ color: 'var(--text-primary)' }}>
+                  <div className="text-[13px] font-medium truncate" style={{ color: 'var(--text-primary)' }}>
                     {selectedTracks[0].title}
                   </div>
-                  <div className="text-[8px] mt-[1px] truncate" style={{ color: 'var(--text-secondary)' }}>
+                  <div className="text-[12px] mt-[1px] truncate" style={{ color: 'var(--text-secondary)' }}>
                     {selectedTracks[0].artist}
                   </div>
                 </div>
@@ -504,7 +504,7 @@ export default function AddTrackPage() {
                         {track.thumbnailUrl && <img src={track.thumbnailUrl} alt="" className="w-full h-full object-cover" />}
                       </div>
                       <span
-                        className="text-[9px] font-medium max-w-[55px] truncate"
+                        className="text-[12px] font-medium max-w-[55px] truncate"
                         style={{ color: isActive ? 'var(--color-cta)' : 'var(--text-secondary)' }}
                       >
                         {track.title}
@@ -517,7 +517,7 @@ export default function AddTrackPage() {
                           setMessages((prev) => { const n = { ...prev }; delete n[track.youtubeId]; return n })
                           if (activeTrackId === track.youtubeId) setActiveTrackId(next[0]?.youtubeId ?? null)
                         }}
-                        className="text-[8px]"
+                        className="text-[12px]"
                         style={{ color: 'var(--text-placeholder)' }}
                       >
                         ✕
@@ -532,7 +532,7 @@ export default function AddTrackPage() {
             {activeTrack && (
               <>
                 {selectedTracks.length > 1 && (
-                  <div className="text-[8px] mb-1 pl-[2px]" style={{ color: 'var(--text-placeholder)' }}>
+                  <div className="text-[12px] mb-1 pl-[2px]" style={{ color: 'var(--text-placeholder)' }}>
                     {activeTrack.title}에 메시지 남기기 (선택)
                   </div>
                 )}
@@ -550,7 +550,7 @@ export default function AddTrackPage() {
                       border: '0.5px solid var(--border-default)',
                       background: 'var(--bg-input)',
                       color: 'var(--text-primary)',
-                      fontSize: 11,
+                      fontSize: 13,
                       fontFamily: 'inherit',
                       fontStyle: 'italic',
                       colorScheme: 'light',
@@ -567,7 +567,7 @@ export default function AddTrackPage() {
                     }}
                   />
                   <span
-                    className="absolute right-[9px] top-1/2 -translate-y-1/2 text-[8px] pointer-events-none"
+                    className="absolute right-[9px] top-1/2 -translate-y-1/2 text-[11px] pointer-events-none"
                     style={{ color: 'var(--text-placeholder)' }}
                   >
                     {(messages[activeTrack.youtubeId] ?? '').length}/30
@@ -583,7 +583,7 @@ export default function AddTrackPage() {
           <button
             onClick={handleSubmit}
             disabled={selectedTracks.length === 0 || isSubmitting}
-            className="w-full h-[36px] text-[11px] font-medium flex items-center justify-center transition-all active:scale-[0.98] disabled:cursor-default"
+            className="w-full h-[36px] text-[13px] font-medium flex items-center justify-center transition-all active:scale-[0.98] disabled:cursor-default"
             style={{
               borderRadius: 10,
               fontFamily: 'inherit',

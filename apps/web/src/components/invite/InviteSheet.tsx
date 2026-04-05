@@ -100,13 +100,13 @@ export function InviteSheet({ isOpen, onClose, room, participants }: InviteSheet
                 border: '0.5px solid rgba(175,169,236,0.5)'
               }}
             >
-              <span style={{ fontSize: 18, fontWeight: 500, color: '#3C3489', letterSpacing: '0.12em', fontFamily: "'Apple SD Gothic Neo', monospace" }}>
+              <span style={{ fontSize: 20, fontWeight: 500, color: '#3C3489', letterSpacing: '0.12em', fontFamily: "'Apple SD Gothic Neo', monospace" }}>
                 {room.code}
               </span>
               <button
                 onClick={handleCopyCode}
                 className="active:opacity-70 transition-opacity"
-                style={{ fontSize: 9, color: '#7F77DD', padding: '4px 8px', border: '0.5px solid rgba(127,119,221,0.4)', borderRadius: 8 }}
+                style={{ fontSize: 13, color: '#7F77DD', padding: '4px 8px', border: '0.5px solid rgba(127,119,221,0.4)', borderRadius: 8 }}
               >
                 복사
               </button>
@@ -125,7 +125,7 @@ export function InviteSheet({ isOpen, onClose, room, participants }: InviteSheet
                     <path d="M3 5.5C3 4 4.3 2.8 6 2.8s3 1.2 3 2.7S7.7 8.2 6 8.2c-.3 0-.6 0-.9-.1L3.8 9l.3-1.3C3.3 7.1 3 6.4 3 5.5z" fill="#3A1D1D"/>
                   </svg>
                 </div>
-                <span style={{ fontSize: 12, fontWeight: 500, color: '#3A1D1D' }}>카카오톡으로 초대하기</span>
+                <span style={{ fontSize: 14, fontWeight: 500, color: '#3A1D1D' }}>카카오톡으로 초대하기</span>
               </button>
 
               <div className="flex gap-[8px]">
@@ -137,14 +137,14 @@ export function InviteSheet({ isOpen, onClose, room, participants }: InviteSheet
 
             {/* 참여자 현황 */}
             <div className="mb-[16px]">
-              <p style={{ fontSize: 9, color: '#9490C0', marginBottom: 6, letterSpacing: '0.03em' }}>
+              <p style={{ fontSize: 13, color: '#9490C0', marginBottom: 6, letterSpacing: '0.03em' }}>
                 지금 방에 있는 사람 ({participants.length}명)
               </p>
               <div className="flex gap-[8px] flex-wrap items-center">
                 {participants.map((p) => (
                   <div key={p.participantId} className="flex flex-col items-center gap-[2px]">
                     <Avatar color={p.avatar} size="sm" isHost={p.isHost} />
-                    <p style={{ fontSize: 7, color: '#9490C0' }} className="max-w-[40px] truncate text-center">
+                    <p style={{ fontSize: 12, color: '#9490C0' }} className="max-w-[40px] truncate text-center">
                       {p.nickname}
                     </p>
                   </div>
@@ -192,7 +192,7 @@ function ShareBtn({
       <div style={{ width: 16, height: 16, borderRadius: '50%', background: 'rgba(210,206,248,0.6)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, color: '#7F77DD' }}>
         {icon}
       </div>
-      <span style={{ fontSize: 10, color: '#4A4680' }}>{label}</span>
+      <span style={{ fontSize: 13, color: '#4A4680' }}>{label}</span>
     </button>
   )
 }

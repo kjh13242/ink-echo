@@ -76,7 +76,7 @@ export function ParticipantBar({
           className="active:opacity-80 transition-opacity flex-shrink-0"
           style={{
             height: 32, borderRadius: 10, background: '#7F77DD', color: 'white',
-            fontSize: 10, fontWeight: 500, padding: '0 12px', display: 'flex',
+            fontSize: 12, fontWeight: 500, padding: '0 12px', display: 'flex',
             alignItems: 'center', justifyContent: 'center', gap: 4, fontFamily: 'inherit'
           }}
         >

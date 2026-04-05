@@ -99,7 +99,6 @@ export function NowPlaying({
 
     if (track.thumbnailUrl) {
       const img = new Image()
-      img.crossOrigin = 'anonymous'
       img.onload = () => {
         imgRef.current = img
         drawImage(img)

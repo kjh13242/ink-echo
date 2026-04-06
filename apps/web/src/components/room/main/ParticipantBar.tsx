@@ -73,8 +73,8 @@ export function ParticipantBar({
           onClick={onAddTrack}
           className="active:opacity-80 transition-opacity flex-shrink-0"
           style={{
-            height: 32, borderRadius: 10, background: '#7F77DD', color: 'white',
-            fontSize: 12, fontWeight: 500, padding: '0 12px', display: 'flex',
+            height: 40, borderRadius: 10, background: '#7F77DD', color: 'white',
+            fontSize: 13, fontWeight: 500, padding: '0 14px', display: 'flex',
             alignItems: 'center', justifyContent: 'center', gap: 4, fontFamily: 'inherit'
           }}
         >
@@ -113,10 +113,13 @@ function EmojiPopup({ myReactions, onReact, onCancel, onClose }: EmojiPopupProps
   return (
     <>
       <div className="fixed inset-0 z-30" onClick={onClose} />
-      <div className="fixed bottom-20 left-4 right-4 z-40
-                      bg-[var(--bg-sheet)] rounded-card border border-[var(--border-default)]
-                      p-4 shadow-lg
-                      animate-in slide-in-from-bottom-2 duration-200">
+      <div
+        className="fixed left-4 right-4 z-40
+                   bg-[var(--bg-sheet)] rounded-card border border-[var(--border-default)]
+                   p-4 shadow-lg
+                   animate-in slide-in-from-bottom-2 duration-200"
+        style={{ bottom: 'calc(env(safe-area-inset-bottom, 0px) + 72px)' }}
+      >
         <div className="grid grid-cols-4 gap-3">
           {EMOJI_LIST.map((emoji) => {
             const isReacted = myReactions.includes(emoji)

@@ -20,6 +20,7 @@ export function RoomSettingsSheet({
 }: RoomSettingsSheetProps) {
   const [local, setLocal] = useState<RoomSettings>({ ...settings })
   const [isSaving, setIsSaving] = useState(false)
+  const isDirty = JSON.stringify(local) !== JSON.stringify(settings)
 
   const handleSave = async () => {
     setIsSaving(true)
@@ -212,7 +213,7 @@ export function RoomSettingsSheet({
 
         <button
           onClick={handleSave}
-          disabled={isSaving}
+          disabled={isSaving || !isDirty}
           className="w-full h-11 mt-6 rounded-btn bg-[var(--color-cta)] text-[var(--color-cta-text)]
                      text-body1 font-medium disabled:opacity-40 active:opacity-80 transition-opacity"
         >

@@ -333,7 +333,7 @@ export function NowPlaying({
         <button
           onClick={canSkip ? onSkip : undefined}
           disabled={!canSkip}
-          className="text-white/40 active:opacity-60 disabled:opacity-20"
+          className="text-white/70 active:opacity-60 disabled:opacity-25"
         >
           <svg width="28" height="28" viewBox="0 0 28 28" fill="none">
             <path d="M15 7l6 7-6 7V7z" fill="currentColor"/>

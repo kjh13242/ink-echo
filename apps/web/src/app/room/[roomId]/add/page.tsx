@@ -241,10 +241,14 @@ export default function AddTrackPage() {
           {query && (
             <button
               onClick={clearQuery}
-              className="absolute right-[9px] top-1/2 -translate-y-1/2 w-[14px] h-[14px] rounded-full flex items-center justify-center text-[7px]"
-              style={{ background: 'rgba(180,176,220,0.3)', color: 'var(--text-secondary)' }}
+              className="absolute right-0 top-1/2 -translate-y-1/2 w-[44px] h-[44px] flex items-center justify-center"
             >
-              ✕
+              <span
+                className="w-[16px] h-[16px] rounded-full flex items-center justify-center text-[8px]"
+                style={{ background: 'rgba(180,176,220,0.3)', color: 'var(--text-secondary)' }}
+              >
+                ✕
+              </span>
             </button>
           )}
 
@@ -295,27 +299,29 @@ export default function AddTrackPage() {
         </div>
       </div>
 
-      {/* ── 탭 ── */}
-      <div
-        className="flex flex-shrink-0"
-        style={{ borderBottom: '0.5px solid var(--border-default)' }}
-      >
-        {(['search', 'mood'] as Tab[]).map((t) => (
-          <button
-            key={t}
-            onClick={() => setTab(t)}
-            className="flex-1 py-[6px] text-[13px] text-center transition-colors"
-            style={{
-              fontFamily: 'inherit',
-              fontWeight: tab === t ? 500 : 400,
-              color: tab === t ? 'var(--text-primary)' : 'var(--text-tertiary)',
-              borderBottom: `2px solid ${tab === t ? 'var(--color-cta)' : 'transparent'}`,
-            }}
-          >
-            {t === 'search' ? '검색' : '분위기 추천'}
-          </button>
-        ))}
-      </div>
+      {/* ── 탭 — 검색 중에는 숨김 ── */}
+      {!isSearchMode && (
+        <div
+          className="flex flex-shrink-0"
+          style={{ borderBottom: '0.5px solid var(--border-default)' }}
+        >
+          {(['search', 'mood'] as Tab[]).map((t) => (
+            <button
+              key={t}
+              onClick={() => setTab(t)}
+              className="flex-1 py-[6px] text-[13px] text-center transition-colors"
+              style={{
+                fontFamily: 'inherit',
+                fontWeight: tab === t ? 500 : 400,
+                color: tab === t ? 'var(--text-primary)' : 'var(--text-tertiary)',
+                borderBottom: `2px solid ${tab === t ? 'var(--color-cta)' : 'transparent'}`,
+              }}
+            >
+              {t === 'search' ? '검색' : '분위기 추천'}
+            </button>
+          ))}
+        </div>
+      )}
 
       {/* ── 분위기 태그 (검색어 없을 때 항상 표시) ── */}
       {!isSearchMode && (

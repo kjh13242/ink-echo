@@ -24,7 +24,7 @@ export function EmptyState({
       />
       {actionLabel && onAction && (
         <Button
-          variant="secondary"
+          variant="primary"
           size="sm"
           onClick={onAction}
           className="mt-2"

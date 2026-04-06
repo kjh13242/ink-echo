@@ -196,14 +196,16 @@ function QueueTrackItem({
         </div>
       )}
 
-      {/* 삭제 버튼 — X 아이콘 */}
+      {/* 삭제 버튼 — 터치 타겟 44px, 시각 크기는 유지 */}
       <button
         onClick={handleRemove}
-        className="flex-shrink-0 w-7 h-7 flex items-center justify-center rounded-lg
-                   bg-[rgba(226,75,74,0.12)] border border-[rgba(226,75,74,0.25)]
-                   text-error active:scale-95 transition-transform"
+        className="flex-shrink-0 w-[44px] h-[44px] flex items-center justify-center active:scale-95 transition-transform -mr-2"
       >
-        <XIcon />
+        <span className="w-7 h-7 flex items-center justify-center rounded-lg
+                         bg-[rgba(226,75,74,0.12)] border border-[rgba(226,75,74,0.25)]
+                         text-error">
+          <XIcon />
+        </span>
       </button>
     </div>
   )

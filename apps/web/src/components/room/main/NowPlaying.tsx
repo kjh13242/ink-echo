@@ -121,16 +121,35 @@ export function NowPlaying({
 
   // 마우스 틸트 핸들러
   const onMouseMove = (e: React.MouseEvent<HTMLDivElement>) => {
-    const card = cardRef.current
     const scene = e.currentTarget
+    const rect = scene.getBoundingClientRect()
+    const dx = (e.clientX - (rect.left + rect.width / 2)) / (rect.width / 2)
+    const dy = (e.clientY - (rect.top + rect.height / 2)) / (rect.height / 2)
+    applyTilt(dx, dy)
+  }
+
+  const resetCard = () => {
+    const card = cardRef.current
     const glare = glareRef.current
     const holo = holoRef.current
     const shimmer = shimmerRef.current
     if (!card || !glare || !holo || !shimmer) return
 
-    const rect = scene.getBoundingClientRect()
-    const dx = (e.clientX - (rect.left + rect.width / 2)) / (rect.width / 2)
-    const dy = (e.clientY - (rect.top + rect.height / 2)) / (rect.height / 2)
+    card.style.transition = 'transform 0.6s cubic-bezier(0.23,1,0.32,1)'
+    card.style.transform = 'rotateX(0) rotateY(0) scale3d(1,1,1)'
+    glare.style.opacity = '0'
+    holo.style.opacity = '0'
+    shimmer.style.background = 'linear-gradient(105deg, rgba(255,255,255,0) 40%, rgba(255,255,255,0.18) 50%, rgba(255,255,255,0) 60%)'
+  }
+
+  const onMouseLeave = resetCard
+
+  const applyTilt = (dx: number, dy: number) => {
+    const card = cardRef.current
+    const glare = glareRef.current
+    const holo = holoRef.current
+    const shimmer = shimmerRef.current
+    if (!card || !glare || !holo || !shimmer) return
 
     card.style.transform = `rotateX(${-dy * 18}deg) rotateY(${dx * 18}deg) scale3d(1.04,1.04,1.04)`
     card.style.transition = 'transform 0.08s linear'
@@ -148,19 +167,16 @@ export function NowPlaying({
     shimmer.style.background = `linear-gradient(${105 + dx * 20}deg, rgba(255,255,255,0) 35%, rgba(255,255,255,${0.12 + Math.abs(dx) * 0.1}) 50%, rgba(255,255,255,0) 65%)`
   }
 
-  const onMouseLeave = () => {
-    const card = cardRef.current
-    const glare = glareRef.current
-    const holo = holoRef.current
-    const shimmer = shimmerRef.current
-    if (!card || !glare || !holo || !shimmer) return
-
-    card.style.transition = 'transform 0.6s cubic-bezier(0.23,1,0.32,1)'
-    card.style.transform = 'rotateX(0) rotateY(0) scale3d(1,1,1)'
-    glare.style.opacity = '0'
-    holo.style.opacity = '0'
-    shimmer.style.background = 'linear-gradient(105deg, rgba(255,255,255,0) 40%, rgba(255,255,255,0.18) 50%, rgba(255,255,255,0) 60%)'
+  const onTouchMove = (e: React.TouchEvent<HTMLDivElement>) => {
+    const touch = e.touches[0]
+    const scene = e.currentTarget
+    const rect = scene.getBoundingClientRect()
+    const dx = (touch.clientX - (rect.left + rect.width / 2)) / (rect.width / 2)
+    const dy = (touch.clientY - (rect.top + rect.height / 2)) / (rect.height / 2)
+    applyTilt(dx, dy)
   }
+
+  const onTouchEnd = resetCard
 
   return (
     <div className="px-5 pt-4 pb-2 bg-[#0A0A0A]">
@@ -169,6 +185,8 @@ export function NowPlaying({
         style={{ perspective: '600px', cursor: 'pointer' }}
         onMouseMove={onMouseMove}
         onMouseLeave={onMouseLeave}
+        onTouchMove={onTouchMove}
+        onTouchEnd={onTouchEnd}
         className="w-full mb-4"
       >
         <div

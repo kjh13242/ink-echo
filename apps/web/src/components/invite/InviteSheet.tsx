@@ -78,7 +78,7 @@ export function InviteSheet({ isOpen, onClose, room, participants }: InviteSheet
               </div>
 
               <div className="text-center">
-                <p className="text-[22px] font-[Arial] font-medium tracking-[0.08em] text-purple-900">
+                <p className="text-[22px] font-[Arial] font-medium tracking-[0.08em]" style={{ color: '#A89EF5' }}>
                   {room.code}
                 </p>
                 <p className="text-caption text-[var(--text-tertiary)] mt-1">
@@ -96,17 +96,17 @@ export function InviteSheet({ isOpen, onClose, room, participants }: InviteSheet
             <div
               className="flex items-center justify-between mb-[16px] w-full"
               style={{
-                background: '#EEEDFE', borderRadius: 12, padding: '10px 14px',
-                border: '0.5px solid rgba(175,169,236,0.5)'
+                background: 'rgba(168,158,245,0.1)', borderRadius: 12, padding: '10px 14px',
+                border: '0.5px solid rgba(168,158,245,0.25)'
               }}
             >
-              <span style={{ fontSize: 20, fontWeight: 500, color: '#3C3489', letterSpacing: '0.12em', fontFamily: "'Apple SD Gothic Neo', monospace" }}>
+              <span style={{ fontSize: 20, fontWeight: 500, color: '#A89EF5', letterSpacing: '0.12em', fontFamily: "'Apple SD Gothic Neo', monospace" }}>
                 {room.code}
               </span>
               <button
                 onClick={handleCopyCode}
                 className="active:opacity-70 transition-opacity"
-                style={{ fontSize: 13, color: '#7F77DD', padding: '4px 8px', border: '0.5px solid rgba(127,119,221,0.4)', borderRadius: 8 }}
+                style={{ fontSize: 13, color: '#A89EF5', padding: '4px 8px', border: '0.5px solid rgba(168,158,245,0.4)', borderRadius: 8 }}
               >
                 복사
               </button>
@@ -137,14 +137,14 @@ export function InviteSheet({ isOpen, onClose, room, participants }: InviteSheet
 
             {/* 참여자 현황 */}
             <div className="mb-[16px]">
-              <p style={{ fontSize: 13, color: '#9490C0', marginBottom: 6, letterSpacing: '0.03em' }}>
+              <p style={{ fontSize: 13, color: 'var(--text-tertiary)', marginBottom: 6, letterSpacing: '0.03em' }}>
                 지금 방에 있는 사람 ({participants.length}명)
               </p>
               <div className="flex gap-[8px] flex-wrap items-center">
                 {participants.map((p) => (
                   <div key={p.participantId} className="flex flex-col items-center gap-[2px]">
                     <Avatar color={p.avatar} size="sm" isHost={p.isHost} />
-                    <p style={{ fontSize: 12, color: '#9490C0' }} className="max-w-[40px] truncate text-center">
+                    <p style={{ fontSize: 12, color: 'var(--text-tertiary)' }} className="max-w-[40px] truncate text-center">
                       {p.nickname}
                     </p>
                   </div>
@@ -185,14 +185,14 @@ function ShareBtn({
       onClick={onClick}
       className="flex-1 flex items-center justify-center gap-[5px] h-[38px] active:scale-[0.98] transition-transform"
       style={{
-        borderRadius: 10, border: '0.5px solid rgba(180,176,220,0.6)',
-        background: '#F4F2FF', fontFamily: 'inherit'
+        borderRadius: 10, border: '0.5px solid rgba(168,158,245,0.2)',
+        background: 'rgba(168,158,245,0.08)', fontFamily: 'inherit'
       }}
     >
-      <div style={{ width: 16, height: 16, borderRadius: '50%', background: 'rgba(210,206,248,0.6)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, color: '#7F77DD' }}>
+      <div style={{ width: 16, height: 16, borderRadius: '50%', background: 'rgba(168,158,245,0.15)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, color: '#A89EF5' }}>
         {icon}
       </div>
-      <span style={{ fontSize: 13, color: '#4A4680' }}>{label}</span>
+      <span style={{ fontSize: 13, color: 'var(--text-secondary)' }}>{label}</span>
     </button>
   )
 }

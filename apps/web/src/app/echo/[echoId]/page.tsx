@@ -21,7 +21,7 @@ export default function EchoCardPage() {
 
   if (isLoading) {
     return (
-      <main className="dot-grid bg-[var(--bg-base)] min-h-screen flex items-center justify-center">
+      <main className="bg-[#0A0A0A] min-h-screen flex items-center justify-center">
         <div className="w-8 h-8 border-2 border-purple-500 border-t-transparent rounded-full animate-spin" />
       </main>
     )
@@ -29,7 +29,7 @@ export default function EchoCardPage() {
 
   if (!echoCard) {
     return (
-      <main className="dot-grid bg-[var(--bg-base)] min-h-screen flex flex-col items-center justify-center gap-4">
+      <main className="bg-[#0A0A0A] min-h-screen flex flex-col items-center justify-center gap-4">
         <p className="text-h2 text-[var(--text-primary)]">에코 카드를 찾을 수 없어요</p>
         <Button variant="secondary" onClick={() => router.push('/')}>
           홈으로
@@ -79,7 +79,7 @@ export default function EchoCardPage() {
   }
 
   return (
-    <main className="dot-grid bg-[var(--bg-base)] min-h-screen flex flex-col max-w-[430px] mx-auto px-4 py-8 pb-24">
+    <main className="bg-[#0A0A0A] min-h-screen flex flex-col max-w-[430px] mx-auto px-4 py-8 pb-24">
 
       {/* 헤더 */}
       <div className="mb-6 text-center">
@@ -106,13 +106,13 @@ export default function EchoCardPage() {
             key={label}
             className="rounded-[10px] p-[10px_10px_8px] flex flex-col gap-[3px] border"
             style={{
-              background: highlight ? '#EEEDFE' : '#FFFFFF',
-              borderColor: highlight ? 'rgba(175, 169, 236, 0.5)' : 'rgba(180, 176, 220, 0.5)',
+              background: highlight ? 'rgba(168,158,245,0.12)' : 'rgba(255,255,255,0.04)',
+              borderColor: highlight ? 'rgba(168,158,245,0.3)' : 'rgba(255,255,255,0.08)',
             }}
           >
             <p
               className="text-[20px] font-medium leading-[1]"
-              style={{ color: highlight ? '#3C3489' : '#2A2660' }}
+              style={{ color: highlight ? '#A89EF5' : 'var(--text-primary)' }}
             >
               {value}
             </p>
@@ -140,8 +140,8 @@ export default function EchoCardPage() {
                   key={track.queueId}
                   className="flex items-center gap-[8px] px-[10px] py-[7px] rounded-[10px] border"
                   style={{
-                    background: highlight ? '#EEEDFE' : '#FFFFFF',
-                    borderColor: highlight ? 'rgba(175, 169, 236, 0.5)' : 'rgba(180, 176, 220, 0.4)',
+                    background: highlight ? 'rgba(168,158,245,0.12)' : 'rgba(255,255,255,0.04)',
+                    borderColor: highlight ? 'rgba(168,158,245,0.3)' : 'rgba(255,255,255,0.08)',
                   }}
                 >
                   <span className="text-[13px] w-[18px] text-center flex-shrink-0">
@@ -162,8 +162,8 @@ export default function EchoCardPage() {
                     />
                   )}
                   <div className="flex-1 min-w-0">
-                    <p className="text-[11px] font-medium truncate" style={{ color: '#2A2660' }}>{track.title}</p>
-                    <p className="text-[11px] mt-[1px] truncate" style={{ color: '#6B67A0' }}>{track.artist}</p>
+                    <p className="text-[11px] font-medium truncate" style={{ color: 'var(--text-primary)' }}>{track.title}</p>
+                    <p className="text-[11px] mt-[1px] truncate" style={{ color: 'var(--text-secondary)' }}>{track.artist}</p>
                   </div>
                   <div className="text-[12px] flex-shrink-0" style={{ color: '#9490C0' }}>
                     {track.topEmoji && <span className="mr-1">{track.topEmoji}</span>}
@@ -193,7 +193,8 @@ export default function EchoCardPage() {
 
       {/* 하단 액션 */}
       <div className="fixed bottom-0 left-0 right-0 max-w-[430px] mx-auto
-                      px-4 py-4 bg-[var(--bg-sheet)] border-t border-[var(--border-default)]">
+                      px-4 py-4 border-t"
+                      style={{ background: 'rgba(10,10,10,0.95)', borderColor: 'rgba(255,255,255,0.08)', backdropFilter: 'blur(12px)' }}>
         <div className="flex flex-col gap-[7px]">
           {/* 메인 공유 버튼 — navigator.share 지원 시 시스템 공유 시트, 아니면 카카오 */}
           <div

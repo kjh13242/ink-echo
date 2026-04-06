@@ -34,7 +34,19 @@ export function RoomSettingsSheet({
   return (
     <BottomSheet isOpen={isOpen} onClose={onClose} disableBackdropClose>
       <div className="px-4 pb-8">
-        <h2 className="text-h2 text-[var(--text-primary)] mb-5">방 설정</h2>
+        <div className="flex items-center justify-between mb-5">
+          <h2 className="text-h2 text-[var(--text-primary)]">방 설정</h2>
+          <button
+            onClick={onClose}
+            className="w-7 h-7 flex items-center justify-center rounded-full
+                       bg-[var(--bg-input)] text-[var(--text-tertiary)]
+                       active:opacity-60 transition-opacity"
+          >
+            <svg width="10" height="10" viewBox="0 0 10 10" fill="none">
+              <path d="M2 2l6 6M8 2l-6 6" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"/>
+            </svg>
+          </button>
+        </div>
 
         <div className="flex flex-col gap-4">
           {/* 재생 제어 */}

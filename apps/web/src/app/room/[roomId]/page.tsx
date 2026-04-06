@@ -305,14 +305,6 @@ export default function RoomPage() {
                 await api.post(`/api/rooms/${roomId}/queue/skip`)
               }}
             />
-            <EmojiStack
-              onReact={async (emoji) => {
-                await api.post(`/api/rooms/${roomId}/reactions`, { emoji })
-              }}
-              onCancel={async (emoji) => {
-                await api.delete(`/api/rooms/${roomId}/reactions/${encodeURIComponent(emoji)}`)
-              }}
-            />
           </>
         ) : (
           /* 큐가 완전히 비어있을 때 */
@@ -351,8 +343,8 @@ export default function RoomPage() {
           </div>
         )}
 
-        {/* 다음 재생 큐 — NowPlaying 아래 바로 이어짐 */}
-        <QueueList
+        {/* 다음 재생 큐 — currentTrack 없을 땐 숨김 (빈 큐 CTA가 위에 이미 있음) */}
+        {currentTrack && <QueueList
           tracks={tracks}
           currentQueueId={currentTrack?.queueId ?? null}
           canReorder={permissions.canReorder}
@@ -379,7 +371,7 @@ export default function RoomPage() {
             })
           }}
           onAvatarTap={(participantId) => setParticipantTracksId(participantId)}
-        />
+        />}
       </div>
 
       {/* 하단 캐릭터 존 */}
@@ -397,6 +389,16 @@ export default function RoomPage() {
           }}
         />
       )}
+
+      {/* 이모지 반응 — 항상 상단 고정, 스크롤에 영향 안 받음 */}
+      <EmojiStack
+        onReact={async (emoji) => {
+          await api.post(`/api/rooms/${roomId}/reactions`, { emoji })
+        }}
+        onCancel={async (emoji) => {
+          await api.delete(`/api/rooms/${roomId}/reactions/${encodeURIComponent(emoji)}`)
+        }}
+      />
 
       {/* 초대 시트 */}
       <InviteSheet

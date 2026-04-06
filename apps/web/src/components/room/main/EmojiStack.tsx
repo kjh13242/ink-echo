@@ -15,17 +15,18 @@ export function EmojiStack({ onReact, onCancel }: EmojiStackProps) {
   if (stack.length === 0) return null
 
   return (
-    <div className="px-4 py-2 flex gap-2 flex-wrap bg-[var(--bg-surface)] border-b border-[var(--border-default)]">
+    <div className="fixed top-[52px] left-0 right-0 z-20 px-4 py-2 flex gap-2 flex-wrap pointer-events-none"
+         style={{ maxWidth: 430, margin: '0 auto' }}>
       {stack.map(({ emoji, count, myReacted }) => (
         <button
           key={emoji}
           onClick={() => myReacted ? onCancel(emoji as Emoji) : onReact(emoji as Emoji)}
           className={cn(
-            'flex items-center gap-1 px-2.5 py-1 rounded-full text-[11px]',
+            'flex items-center gap-1 px-2.5 py-1 rounded-full text-[11px] pointer-events-auto',
             'border transition-all active:scale-95',
             myReacted
-              ? 'border-purple-400 bg-purple-100 text-purple-800'
-              : 'border-[var(--border-default)] bg-[var(--bg-input)] text-[var(--text-secondary)]'
+              ? 'border-purple-400/60 bg-[rgba(168,158,245,0.2)] text-white backdrop-blur-sm'
+              : 'border-white/10 bg-[rgba(0,0,0,0.5)] text-white/70 backdrop-blur-sm'
           )}
         >
           <span>{emoji}</span>

@@ -29,7 +29,10 @@ export function QueueList({
   onVote,
   onAvatarTap,
 }: QueueListProps) {
-  const pendingTracks = tracks.filter((t) => t.status === 'pending')
+  // currentQueueId가 pending 트랙(NowPlaying에 표시 중)이면 큐에서 제외 — 중복 방지
+  const pendingTracks = tracks.filter(
+    (t) => t.status === 'pending' && t.queueId !== currentQueueId
+  )
 
   return (
     <div className="bg-[#0A0A0A] pb-28">

@@ -55,8 +55,12 @@ export default function AddTrackPage() {
   const showRecentDropdown = isFocused && !isSearchMode && recentQueries.length > 0
   const trackList = isSearchMode ? results : recommendations
 
+  // 이미 큐에 있는 youtubeId 목록
+  const queuedYoutubeIds = new Set(tracks.map((t) => t.youtubeId))
+
   const toggleSelect = (track: SearchTrack) => {
     if (!track.isAvailable) return
+    if (queuedYoutubeIds.has(track.youtubeId)) return  // 이미 추가된 곡
     const exists = selectedTracks.find((t) => t.youtubeId === track.youtubeId)
     if (exists) {
       const next = selectedTracks.filter((t) => t.youtubeId !== track.youtubeId)
@@ -326,9 +330,6 @@ export default function AddTrackPage() {
                 <button
                   key={tag.id}
                   onClick={() => {
-                    if (tab === 'search') {
-                      setTab('mood')
-                    }
                     setActiveMood(tag.id)
                   }}
                   className="text-[12px] transition-colors"
@@ -372,11 +373,12 @@ export default function AddTrackPage() {
         ) : (
           trackList.map((track) => {
             const isSelected = !!selectedTracks.find((t) => t.youtubeId === track.youtubeId)
+            const isQueued = queuedYoutubeIds.has(track.youtubeId)
             return (
               <div
                 key={track.youtubeId}
                 onClick={() => toggleSelect(track)}
-                className={cn('flex items-center gap-[7px] px-3 py-[6px] cursor-pointer transition-colors', !track.isAvailable && 'opacity-40')}
+                className={cn('flex items-center gap-[7px] px-3 py-[6px] transition-colors', (!track.isAvailable || isQueued) && 'opacity-50', !isQueued && 'cursor-pointer')}
                 style={{ background: isSelected ? 'rgba(127,119,221,0.06)' : undefined }}
               >
                 {/* 썸네일 */}
@@ -416,11 +418,13 @@ export default function AddTrackPage() {
                 <div
                   className="w-[22px] h-[22px] rounded-full flex items-center justify-center flex-shrink-0 transition-colors"
                   style={{
-                    border: `0.5px solid ${isSelected ? 'rgba(168,158,245,0.5)' : 'var(--border-default)'}`,
-                    background: isSelected ? 'rgba(168,158,245,0.15)' : 'var(--bg-surface)',
+                    border: `0.5px solid ${isQueued ? 'rgba(168,158,245,0.3)' : isSelected ? 'rgba(168,158,245,0.5)' : 'var(--border-default)'}`,
+                    background: isQueued ? 'rgba(168,158,245,0.08)' : isSelected ? 'rgba(168,158,245,0.15)' : 'var(--bg-surface)',
                   }}
                 >
-                  {isSelected ? (
+                  {isQueued ? (
+                    <span className="text-[10px]" style={{ color: 'rgba(168,158,245,0.5)' }}>✓</span>
+                  ) : isSelected ? (
                     <span className="text-[12px]" style={{ color: 'var(--color-cta)' }}>✓</span>
                   ) : (
                     <svg width="9" height="9" viewBox="0 0 9 9" fill="none">

@@ -20,6 +20,7 @@ export function RoomHeader({
   onEndRoom,
 }: RoomHeaderProps) {
   const [showMore, setShowMore] = useState(false)
+  const [leaveConfirm, setLeaveConfirm] = useState(false)
   const [endConfirm, setEndConfirm] = useState(false)
   const [isEnding, setIsEnding] = useState(false)
 
@@ -63,7 +64,7 @@ export function RoomHeader({
           )}
           <MoreItem
             label="방 나가기"
-            onClick={() => { setShowMore(false); onLeave() }}
+            onClick={() => { setShowMore(false); setLeaveConfirm(true) }}
           />
           {onEndRoom && (
             <MoreItem
@@ -74,6 +75,38 @@ export function RoomHeader({
           )}
         </div>
       </BottomSheet>
+
+      {/* 방 나가기 확인 모달 */}
+      {leaveConfirm && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center px-6">
+          <div
+            className="absolute inset-0 bg-black/40 backdrop-blur-[2px]"
+            onClick={() => setLeaveConfirm(false)}
+          />
+          <div className="relative z-10 w-full max-w-[300px] bg-[var(--bg-sheet)] rounded-card p-5 shadow-xl">
+            <h2 className="text-h2 text-[var(--text-primary)] mb-2">방을 나갈까요?</h2>
+            <p className="text-caption text-[var(--text-secondary)] mb-5">
+              나가면 지금 재생 중인 음악이 멈추지 않아요
+            </p>
+            <div className="flex gap-2">
+              <Button
+                variant="secondary"
+                fullWidth
+                onClick={() => setLeaveConfirm(false)}
+              >
+                계속 듣기
+              </Button>
+              <Button
+                variant="primary"
+                fullWidth
+                onClick={() => { setLeaveConfirm(false); onLeave() }}
+              >
+                나가기
+              </Button>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* 방 종료 확인 모달 */}
       {endConfirm && (

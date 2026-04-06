@@ -36,7 +36,10 @@ export const useRoomStore = create<RoomState>()(
 
   addParticipant: (participant) =>
     set((state) => ({
-      participants: [...state.participants, participant],
+      // 이미 존재하면 정보 업데이트, 없으면 추가
+      participants: state.participants.some((p) => p.participantId === participant.participantId)
+        ? state.participants.map((p) => p.participantId === participant.participantId ? participant : p)
+        : [...state.participants, participant],
     })),
 
   removeParticipant: (participantId) =>

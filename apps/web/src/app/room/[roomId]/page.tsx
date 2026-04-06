@@ -29,7 +29,7 @@ export default function RoomPage() {
   const router = useRouter()
   const roomId = params.roomId as string
 
-  const { room, session, participants, addParticipant, removeParticipant,
+  const { room, session, participants, setParticipants, addParticipant, removeParticipant,
           transferHost, updateSettings, clearRoom } = useRoomStore()
   const { tracks, setTracks, addTrack, removeTrack, reorderTrack,
           updateTrackStatus, setCurrentIndex, updateVoteCount } = useQueueStore()
@@ -86,6 +86,8 @@ export default function RoomPage() {
           playback: { is_playing: string; current_queue_id: string; position_sec: string; updated_at: string }
         }
         setTracks(payload.queue ?? [])
+        // 재연결 시 참여자 목록 서버 기준으로 덮어쓰기 (나간 사람 제거)
+        if (payload.participants) setParticipants(payload.participants)
         // 재연결 시 서버 상태 복원
         syncFromServer({
           isPlaying: payload.playback?.is_playing === 'true',
@@ -195,7 +197,7 @@ export default function RoomPage() {
   }, [tracks, isPlaying, loadVideo, play, pause, addTrack, removeTrack,
       reorderTrack, updateTrackStatus, setPlaying, setAdDuration, setTracks,
       syncFromServer, addReaction, removeReaction, updateVoteCount,
-      addParticipant, removeParticipant, transferHost, updateSettings,
+      setParticipants, addParticipant, removeParticipant, transferHost, updateSettings,
       clearRoom, clearPlayback, clearStack, router, showToast])
 
   // WebSocket 연결

@@ -2,6 +2,7 @@
 
 import { useParams, useRouter } from 'next/navigation'
 import { useQuery } from '@tanstack/react-query'
+import { useState } from 'react'
 import { api } from '@/lib/api'
 import { Avatar } from '@/components/common/Avatar'
 import { Button } from '@/components/common/Button'
@@ -37,15 +38,43 @@ export default function EchoCardPage() {
     )
   }
 
+  const [copied, setCopied] = useState(false)
+
   const durationText = echoCard.durationMin >= 60
     ? `${Math.floor(echoCard.durationMin / 60)}시간 ${echoCard.durationMin % 60}분`
     : `${echoCard.durationMin}분`
+
+  const echoUrl = typeof window !== 'undefined'
+    ? `${window.location.origin}/echo/${echoId}`
+    : ''
+
+  const handleShare = async () => {
+    const shareData = {
+      title: `${echoCard.roomName}의 에코`,
+      text: `${echoCard.participantCount}명이 함께 들은 ${echoCard.trackCount}곡`,
+      url: echoUrl,
+    }
+    if (navigator.share && navigator.canShare?.(shareData)) {
+      try { await navigator.share(shareData) } catch { /* 취소 */ }
+    } else {
+      // fallback: 카카오
+      shareKakao({ roomName: echoCard.roomName, participantCount: echoCard.participantCount, inviteUrl: echoUrl })
+    }
+  }
+
+  const handleCopyLink = async () => {
+    try {
+      await navigator.clipboard.writeText(echoUrl)
+      setCopied(true)
+      setTimeout(() => setCopied(false), 2000)
+    } catch { /* 무시 */ }
+  }
 
   const handleKakaoShare = () => {
     shareKakao({
       roomName: echoCard.roomName,
       participantCount: echoCard.participantCount,
-      inviteUrl: `${window.location.origin}/echo/${echoId}`,
+      inviteUrl: echoUrl,
     })
   }
 
@@ -166,28 +195,57 @@ export default function EchoCardPage() {
       <div className="fixed bottom-0 left-0 right-0 max-w-[430px] mx-auto
                       px-4 py-4 bg-[var(--bg-sheet)] border-t border-[var(--border-default)]">
         <div className="flex flex-col gap-[7px]">
+          {/* 메인 공유 버튼 — navigator.share 지원 시 시스템 공유 시트, 아니면 카카오 */}
           <div
-            onClick={handleKakaoShare}
-            className="w-full h-[40px] rounded-[10px] bg-[var(--color-cta)] text-white text-[11px] font-medium flex items-center justify-center gap-[6px] cursor-pointer active:scale-[0.98] transition-transform"
+            onClick={handleShare}
+            className="w-full h-[44px] rounded-[12px] bg-[var(--color-cta)] text-white text-[13px] font-medium flex items-center justify-center gap-[6px] cursor-pointer active:scale-[0.98] transition-transform"
             style={{ fontFamily: 'inherit' }}
           >
-            카카오톡으로 공유
+            <svg width="14" height="14" viewBox="0 0 16 16" fill="none">
+              <path d="M11 1l4 4-4 4M1 8v1a5 5 0 0 0 5 5h4" stroke="white" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+              <path d="M15 5H5a4 4 0 0 0-4 4" stroke="white" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+            </svg>
+            에코 공유하기
           </div>
 
           <div className="flex gap-[7px]">
+            {/* 링크 복사 */}
             <div
-              className="flex-1 h-[36px] rounded-[10px] bg-[var(--bg-surface)] text-[10px] flex items-center justify-center cursor-pointer active:scale-[0.98] transition-transform border border-[var(--border-default)]"
-              style={{ color: 'var(--text-primary)', fontFamily: 'inherit' }}
+              onClick={handleCopyLink}
+              className="flex-1 h-[36px] rounded-[10px] flex items-center justify-center gap-[5px] cursor-pointer active:scale-[0.98] transition-transform border"
+              style={{
+                background: copied ? 'rgba(127,119,221,0.08)' : 'var(--bg-surface)',
+                borderColor: copied ? 'rgba(127,119,221,0.4)' : 'var(--border-default)',
+                color: copied ? 'var(--color-cta)' : 'var(--text-secondary)',
+                fontSize: 12,
+                fontFamily: 'inherit',
+              }}
+            >
+              <svg width="11" height="11" viewBox="0 0 14 14" fill="none">
+                <rect x="1" y="4" width="8" height="9" rx="1.5" stroke="currentColor" strokeWidth="1.2"/>
+                <path d="M4 4V2.5A1.5 1.5 0 0 1 5.5 1H11.5A1.5 1.5 0 0 1 13 2.5V8.5A1.5 1.5 0 0 1 11.5 10H10" stroke="currentColor" strokeWidth="1.2" strokeLinecap="round"/>
+              </svg>
+              {copied ? '복사됨!' : '링크 복사'}
+            </div>
+            {/* 카카오 */}
+            <div
+              onClick={handleKakaoShare}
+              className="flex-1 h-[36px] rounded-[10px] flex items-center justify-center gap-[5px] cursor-pointer active:scale-[0.98] transition-transform border border-[var(--border-default)]"
+              style={{ background: '#FEE500', color: '#3C1E1E', fontSize: 12, fontFamily: 'inherit' }}
+            >
+              <svg width="11" height="11" viewBox="0 0 20 20" fill="none">
+                <ellipse cx="10" cy="8.5" rx="9" ry="7" fill="#3C1E1E"/>
+                <path d="M6 11l1.5-4 2.5 3 2.5-3 1.5 4" stroke="#FEE500" strokeWidth="1.2" strokeLinecap="round" strokeLinejoin="round"/>
+              </svg>
+              카카오
+            </div>
+            {/* 새 방 */}
+            <div
+              className="flex-1 h-[36px] rounded-[10px] bg-[var(--bg-surface)] flex items-center justify-center cursor-pointer active:scale-[0.98] transition-transform border border-[var(--border-default)]"
+              style={{ color: 'var(--text-secondary)', fontSize: 12, fontFamily: 'inherit' }}
               onClick={() => router.push('/create')}
             >
               새 방 만들기
-            </div>
-            <div
-              className="flex-1 h-[36px] rounded-[10px] bg-[var(--bg-surface)] text-[10px] border border-[var(--border-default)] flex items-center justify-center cursor-pointer active:scale-[0.98] transition-transform"
-              style={{ color: 'var(--text-primary)', fontFamily: 'inherit' }}
-              onClick={() => router.push('/')}
-            >
-              홈으로
             </div>
           </div>
         </div>

@@ -264,6 +264,7 @@ export default function RoomPage() {
               track={currentTrack}
               isPlaying={isActuallyPlaying}
               positionSec={playingTrack ? positionSec : 0}
+              isPending={!playingTrack}
               canControl={permissions.canPlay}
               canSkip={permissions.canSkip}
               onPlay={async () => {

@@ -8,6 +8,7 @@ interface NowPlayingProps {
   track: QueueTrack
   isPlaying: boolean
   positionSec: number
+  isPending?: boolean   // 재생 전 대기 곡 — 진행바 숨김
   canControl: boolean
   canSkip: boolean
   onPlay: () => void
@@ -19,6 +20,7 @@ export function NowPlaying({
   track,
   isPlaying,
   positionSec,
+  isPending = false,
   canControl,
   canSkip,
   onPlay,
@@ -271,19 +273,22 @@ export function NowPlaying({
         </div>
       </div>
 
-      {/* 프로그레스 바 */}
-      <div className="mb-3">
-        <div className="h-1 bg-white/10 rounded-full overflow-hidden">
-          <div
-            className="h-full bg-[#A89EF5] rounded-full transition-all duration-1000"
-            style={{ width: `${progress * 100}%` }}
-          />
+      {/* 프로그레스 바 — pending 상태(아직 재생 전)면 숨김 */}
+      {!isPending && (
+        <div className="mb-3">
+          <div className="h-1 bg-white/10 rounded-full overflow-hidden">
+            <div
+              className="h-full bg-[#A89EF5] rounded-full transition-all duration-1000"
+              style={{ width: `${progress * 100}%` }}
+            />
+          </div>
+          <div className="flex justify-between mt-1.5">
+            <span className="text-[11px] text-white/30">{formatDuration(positionSec)}</span>
+            <span className="text-[11px] text-white/30">{formatDuration(track.durationSec)}</span>
+          </div>
         </div>
-        <div className="flex justify-between mt-1.5">
-          <span className="text-[11px] text-white/30">{formatDuration(positionSec)}</span>
-          <span className="text-[11px] text-white/30">{formatDuration(track.durationSec)}</span>
-        </div>
-      </div>
+      )}
+      {isPending && <div className="mb-3" />}
 
       {/* 컨트롤 */}
       <div className="flex items-center justify-center gap-6 pb-2">

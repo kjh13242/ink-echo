@@ -32,7 +32,7 @@ export function RoomSettingsSheet({
   }
 
   return (
-    <BottomSheet isOpen={isOpen} onClose={onClose}>
+    <BottomSheet isOpen={isOpen} onClose={onClose} disableBackdropClose>
       <div className="px-4 pb-8">
         <h2 className="text-h2 text-[var(--text-primary)] mb-5">방 설정</h2>
 

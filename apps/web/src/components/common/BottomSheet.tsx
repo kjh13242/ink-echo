@@ -8,6 +8,7 @@ interface BottomSheetProps {
   onClose: () => void
   children: React.ReactNode
   className?: string
+  disableBackdropClose?: boolean
 }
 
 export function BottomSheet({
@@ -15,6 +16,7 @@ export function BottomSheet({
   onClose,
   children,
   className,
+  disableBackdropClose = false,
 }: BottomSheetProps) {
   const sheetRef = useRef<HTMLDivElement>(null)
 
@@ -37,7 +39,7 @@ export function BottomSheet({
       {/* 배경 dim */}
       <div
         className="absolute inset-0 bg-black/40 backdrop-blur-[2px]"
-        onClick={onClose}
+        onClick={disableBackdropClose ? undefined : onClose}
       />
 
       {/* 시트 */}

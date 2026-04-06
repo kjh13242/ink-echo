@@ -325,7 +325,22 @@ export default function RoomPage() {
                     <circle cx="18" cy="16" r="3" stroke="#606080" strokeWidth="1.5"/>
                   </svg>
                 </div>
-                <p className="text-[13px] text-[#404060]">재생할 곡을 추가해보세요</p>
+                <p className="text-[13px] text-[#404060] mb-4">재생할 곡을 추가해보세요</p>
+                <button
+                  onClick={() => router.push(`/room/${roomId}/add`)}
+                  className="active:opacity-75 transition-opacity"
+                  style={{
+                    height: 36, borderRadius: 10, background: '#7F77DD', color: 'white',
+                    fontSize: 13, fontWeight: 500, padding: '0 16px', display: 'inline-flex',
+                    alignItems: 'center', gap: 4, fontFamily: 'inherit',
+                  }}
+                >
+                  <svg width="10" height="10" viewBox="0 0 12 12" fill="none">
+                    <line x1="6" y1="1" x2="6" y2="11" stroke="white" strokeWidth="1.4" strokeLinecap="round"/>
+                    <line x1="1" y1="6" x2="11" y2="6" stroke="white" strokeWidth="1.4" strokeLinecap="round"/>
+                  </svg>
+                  곡 추가하기
+                </button>
               </div>
             </div>
           </div>

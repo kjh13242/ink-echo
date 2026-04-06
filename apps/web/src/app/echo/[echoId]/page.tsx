@@ -88,7 +88,7 @@ export default function EchoCardPage() {
               {value}
             </p>
             <p
-              className="text-[9px]"
+              className="text-[11px]"
               style={{ color: highlight ? '#7F77DD' : '#9490C0' }}
             >
               {label}
@@ -100,7 +100,7 @@ export default function EchoCardPage() {
       {/* Top 3 */}
       {echoCard.topTracks?.length > 0 && (
         <div className="mb-[12px]">
-          <p className="text-[9px] font-medium tracking-[0.04em] mb-[6px]" style={{ color: '#9490C0' }}>
+          <p className="text-[11px] font-medium tracking-[0.04em] mb-[6px]" style={{ color: '#9490C0' }}>
             반응 많았던 곡 TOP {echoCard.topTracks.length}
           </p>
           <div className="flex flex-col gap-[5px]">
@@ -118,15 +118,25 @@ export default function EchoCardPage() {
                   <span className="text-[13px] w-[18px] text-center flex-shrink-0">
                     {i === 0 ? '🥇' : i === 1 ? '🥈' : '🥉'}
                   </span>
-                  <div
-                    className="w-[30px] h-[30px] rounded-[5px] flex-shrink-0 border"
-                    style={{ background: 'rgba(210, 206, 248, 0.4)', borderColor: 'rgba(180, 176, 220, 0.3)' }}
-                  ></div>
+                  {track.thumbnailUrl ? (
+                    // eslint-disable-next-line @next/next/no-img-element
+                    <img
+                      src={track.thumbnailUrl}
+                      alt={track.title}
+                      className="w-[30px] h-[30px] rounded-[5px] flex-shrink-0 object-cover border"
+                      style={{ borderColor: 'rgba(180, 176, 220, 0.3)' }}
+                    />
+                  ) : (
+                    <div
+                      className="w-[30px] h-[30px] rounded-[5px] flex-shrink-0 border"
+                      style={{ background: 'rgba(210, 206, 248, 0.4)', borderColor: 'rgba(180, 176, 220, 0.3)' }}
+                    />
+                  )}
                   <div className="flex-1 min-w-0">
                     <p className="text-[11px] font-medium truncate" style={{ color: '#2A2660' }}>{track.title}</p>
-                    <p className="text-[9px] mt-[1px] truncate" style={{ color: '#6B67A0' }}>{track.artist}</p>
+                    <p className="text-[11px] mt-[1px] truncate" style={{ color: '#6B67A0' }}>{track.artist}</p>
                   </div>
-                  <div className="text-[10px] flex-shrink-0" style={{ color: '#9490C0' }}>
+                  <div className="text-[12px] flex-shrink-0" style={{ color: '#9490C0' }}>
                     {track.topEmoji && <span className="mr-1">{track.topEmoji}</span>}
                     {track.reactionCount}
                   </div>

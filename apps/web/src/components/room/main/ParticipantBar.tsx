@@ -34,7 +34,7 @@ export function ParticipantBar({
     <>
       <div className="sticky bottom-0 left-0 right-0 z-20 flex-shrink-0"
            style={{
-             borderTop: '0.5px solid rgba(200,196,240,0.5)', background: '#EDEAFF',
+             borderTop: '0.5px solid rgba(255,255,255,0.08)', background: '#111118',
              padding: '8px 14px 14px', display: 'flex', alignItems: 'center', gap: 8
            }}>
 
@@ -45,7 +45,7 @@ export function ParticipantBar({
           </button>
 
           {/* 구분선 */}
-          <div style={{ width: 1, height: 18, background: 'rgba(180,176,220,0.4)', margin: '0 4px' }} className="flex-shrink-0" />
+          <div style={{ width: 1, height: 18, background: 'rgba(255,255,255,0.12)', margin: '0 4px' }} className="flex-shrink-0" />
 
           {/* 다른 참여자들 */}
           {participants.slice(0, 5).map((p) => (
@@ -114,8 +114,8 @@ function EmojiPopup({ myReactions, onReact, onCancel, onClose }: EmojiPopupProps
 
   return (
     <>
-      <div className="absolute inset-0 z-30" onClick={onClose} />
-      <div className="absolute bottom-20 left-4 right-4 z-40
+      <div className="fixed inset-0 z-30" onClick={onClose} />
+      <div className="fixed bottom-20 left-4 right-4 z-40
                       bg-[var(--bg-sheet)] rounded-card border border-[var(--border-default)]
                       p-4 shadow-lg
                       animate-in slide-in-from-bottom-2 duration-200">

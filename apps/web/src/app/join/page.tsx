@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation'
 import { api, setToken, ApiError } from '@/lib/api'
 import { useRoomStore } from '@/store/roomStore'
 import { useToastStore } from '@/store/toastStore'
+import { generateNickname } from '@/lib/utils'
 import type { Avatar as AvatarType, Room, Participant, Session } from '@/types'
 
 const AVATARS = [
@@ -20,6 +21,7 @@ export default function JoinPage() {
   const showToast = useToastStore((s) => s.showToast)
 
   const [code, setCode] = useState('')
+  const [nickname, setNickname] = useState(() => generateNickname())
   const [avatar, setAvatar] = useState<AvatarType>('purple')
   const [isLoading, setIsLoading] = useState(false)
   const [codeError, setCodeError] = useState<string | null>(null)
@@ -45,7 +47,7 @@ export default function JoinPage() {
         participant: { participantId: string; nickname: string; avatar: string; isHost: boolean }
         room: Room
         participants: Participant[]
-      }>(`/api/rooms/${roomInfo.roomId}/join`, { avatar })
+      }>(`/api/rooms/${roomInfo.roomId}/join`, { nickname: nickname || undefined, avatar })
 
       setToken(data.sessionToken)
       setRoom(data.room)
@@ -199,6 +201,45 @@ export default function JoinPage() {
                 </span>
               </div>
             ))}
+          </div>
+
+          {/* 닉네임 */}
+          <div style={{ fontSize: 13, color: 'var(--text-secondary)', marginBottom: 5, marginTop: 16, fontFamily: 'inherit' }}>
+            닉네임 <span style={{ color: 'var(--text-placeholder)' }}>(선택)</span>
+          </div>
+          <div className="relative">
+            <input
+              type="text"
+              value={nickname}
+              onChange={(e) => setNickname(e.target.value.slice(0, 10))}
+              maxLength={10}
+              placeholder="방에서 불릴 이름"
+              className="w-full outline-none transition-colors"
+              style={{
+                height: 38, borderRadius: 10,
+                border: '0.5px solid var(--border-default)',
+                background: 'var(--bg-input)',
+                fontSize: 14, color: 'var(--text-primary)',
+                fontFamily: 'inherit',
+                paddingLeft: 11, paddingRight: 34,
+                caretColor: 'var(--color-cta)',
+                colorScheme: 'light',
+                WebkitAppearance: 'none',
+                appearance: 'none',
+              }}
+              onFocus={(e) => {
+                e.target.style.borderColor = 'var(--border-focus)'
+                e.target.style.background = 'var(--bg-input-focus)'
+              }}
+              onBlur={(e) => {
+                e.target.style.borderColor = 'var(--border-default)'
+                e.target.style.background = 'var(--bg-input)'
+              }}
+            />
+            <span className="absolute pointer-events-none"
+                  style={{ right: 9, top: '50%', transform: 'translateY(-50%)', fontSize: 12, color: '#C0BCD8' }}>
+              {nickname.length}/10
+            </span>
           </div>
       </div>
 

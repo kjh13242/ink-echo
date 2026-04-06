@@ -287,14 +287,6 @@ export function NowPlaying({
 
       {/* 컨트롤 */}
       <div className="flex items-center justify-center gap-6 pb-2">
-        {/* 이전 */}
-        <button className="text-white/40 active:opacity-60 disabled:opacity-20">
-          <svg width="28" height="28" viewBox="0 0 28 28" fill="none">
-            <path d="M7 7l6 7-6 7V7z" fill="currentColor"/>
-            <rect x="16" y="7" width="3" height="14" rx="1.5" fill="currentColor"/>
-          </svg>
-        </button>
-
         {/* 재생/정지 */}
         <button
           onClick={canControl ? onPlay : undefined}

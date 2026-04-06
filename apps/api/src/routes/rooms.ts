@@ -12,7 +12,7 @@ import {
   DEFAULT_SETTINGS,
   getSeedYoutubeIds,
 } from '../lib/utils'
-import { broadcast } from '../websocket/broadcaster'
+import { broadcast, removeConnection } from '../websocket/broadcaster'
 
 export async function roomRoutes(app: FastifyInstance) {
 
@@ -250,6 +250,30 @@ export async function roomRoutes(app: FastifyInstance) {
     broadcast(roomId, { type: 'room:settings_update', payload: updated })
 
     return reply.send(ok({ settings: updated }))
+  })
+
+  // ── DELETE /api/rooms/:id/participants/me — 방 나가기 ─
+  app.delete('/rooms/:id/participants/me', { preHandler: authenticate }, async (req, reply) => {
+    const { id: roomId } = req.params as { id: string }
+    const session = (req as typeof req & { session: { participantId: string; isHost: boolean } }).session
+    const { participantId } = session
+
+    // DB 퇴장 처리
+    await query(
+      `UPDATE participants SET status = 'left', left_at = NOW() WHERE id = $1`,
+      [participantId]
+    )
+
+    // WS 연결 강제 종료 + 브로드캐스트 즉시 발송
+    removeConnection(roomId, participantId)
+    await redis.del(RedisKey.wsConn(participantId))
+
+    broadcast(roomId, {
+      type: 'participant:leave',
+      payload: { participantId },
+    })
+
+    return reply.send(ok(null))
   })
 
   // ── DELETE /api/rooms/:id — 방 종료 ──────────────────

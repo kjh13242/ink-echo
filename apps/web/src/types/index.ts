@@ -101,6 +101,7 @@ export interface EchoTrack {
   youtubeId: string
   title: string
   artist: string
+  thumbnailUrl?: string | null
   addedByNickname: string
   message: string | null
   playOrder: number

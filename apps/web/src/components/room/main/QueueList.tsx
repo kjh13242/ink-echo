@@ -16,6 +16,7 @@ interface QueueListProps {
   onRemove: (queueId: string) => void
   onVote: (queueId: string) => void
   onAvatarTap: (participantId: string) => void
+  onAddTrack?: () => void
 }
 
 export function QueueList({
@@ -28,6 +29,7 @@ export function QueueList({
   onRemove,
   onVote,
   onAvatarTap,
+  onAddTrack,
 }: QueueListProps) {
   // currentQueueId가 pending 트랙(NowPlaying에 표시 중)이면 큐에서 제외 — 중복 방지
   const pendingTracks = tracks.filter(
@@ -54,6 +56,7 @@ export function QueueList({
             message="아직 아무 곡도 없어 — 첫 번째로 넣어볼래?"
             avatarColor="purple"
             actionLabel="곡 추가하기"
+            onAction={onAddTrack}
           />
         </div>
       ) : (

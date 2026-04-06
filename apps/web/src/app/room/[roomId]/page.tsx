@@ -18,6 +18,11 @@ import { NowPlaying } from '@/components/room/main/NowPlaying'
 import { EmojiStack } from '@/components/room/main/EmojiStack'
 import { QueueList } from '@/components/room/main/QueueList'
 import { ParticipantBar } from '@/components/room/main/ParticipantBar'
+import { InviteSheet } from '@/components/invite/InviteSheet'
+import { BottomSheet } from '@/components/common/BottomSheet'
+import { Avatar } from '@/components/common/Avatar'
+import { formatDuration } from '@/lib/utils'
+import type { Avatar as AvatarType } from '@/types'
 
 export default function RoomPage() {
   const params = useParams()
@@ -37,7 +42,6 @@ export default function RoomPage() {
   const [showInvite, setShowInvite] = useState(false)
   const [showSettings, setShowSettings] = useState(false)
   const [participantTracksId, setParticipantTracksId] = useState<string | null>(null)
-  const [showEmojiPopup, setShowEmojiPopup] = useState(false)
   const [myVotes, setMyVotes] = useState<string[]>([])
 
   // 세션 없으면 랜딩으로
@@ -354,6 +358,7 @@ export default function RoomPage() {
           canReorder={permissions.canReorder}
           canVote={room.settings.voteMode}
           myVotes={myVotes}
+          onAddTrack={() => router.push(`/room/${roomId}/add`)}
           onReorder={async (queueId, newPos) => {
             await api.put(`/api/rooms/${roomId}/queue/reorder`, {
               queue_id: queueId,
@@ -383,7 +388,6 @@ export default function RoomPage() {
           participants={others}
           me={me}
           onOtherTap={(id) => setParticipantTracksId(id)}
-          onMeTap={() => setShowEmojiPopup(true)}
           onAddTrack={() => router.push(`/room/${roomId}/add`)}
           onReact={async (emoji) => {
             await api.post(`/api/rooms/${roomId}/reactions`, { emoji })
@@ -393,6 +397,69 @@ export default function RoomPage() {
           }}
         />
       )}
+
+      {/* 초대 시트 */}
+      <InviteSheet
+        isOpen={showInvite}
+        onClose={() => setShowInvite(false)}
+        room={room}
+        participants={participants}
+      />
+
+      {/* 참여자 신청 곡 시트 */}
+      {participantTracksId && (() => {
+        const person = participants.find((p) => p.participantId === participantTracksId)
+        const personTracks = tracks.filter(
+          (t) => t.status === 'pending' && t.addedBy.participantId === participantTracksId
+        )
+        return (
+          <BottomSheet isOpen onClose={() => setParticipantTracksId(null)}>
+            <div className="px-4 pb-8">
+              {/* 헤더 */}
+              <div className="flex items-center gap-3 mb-5">
+                {person && (
+                  <Avatar color={person.avatar as AvatarType} size="sm" isHost={person.isHost} />
+                )}
+                <div>
+                  <p className="text-[15px] font-medium text-[var(--text-primary)]">
+                    {person?.nickname ?? '참여자'}
+                  </p>
+                  <p className="text-[12px] text-[var(--text-tertiary)]">
+                    신청한 곡 {personTracks.length}개
+                  </p>
+                </div>
+              </div>
+
+              {personTracks.length === 0 ? (
+                <p className="text-[13px] text-[var(--text-tertiary)] text-center py-6">
+                  아직 신청한 곡이 없어요
+                </p>
+              ) : (
+                <div className="flex flex-col gap-2">
+                  {personTracks.map((t) => (
+                    <div key={t.queueId} className="flex items-center gap-3 py-1">
+                      <div className="w-9 h-9 rounded-lg overflow-hidden flex-shrink-0 bg-[var(--bg-input)]">
+                        {t.thumbnailUrl && (
+                          <img src={t.thumbnailUrl} alt={t.title} className="w-full h-full object-cover" />
+                        )}
+                      </div>
+                      <div className="flex-1 min-w-0">
+                        <p className="text-[14px] font-medium truncate text-[var(--text-primary)]">{t.title}</p>
+                        <p className="text-[12px] truncate text-[var(--text-secondary)]">{t.artist}</p>
+                      </div>
+                      {t.durationSec > 0 && (
+                        <span className="text-[12px] text-[var(--text-tertiary)] flex-shrink-0">
+                          {formatDuration(t.durationSec)}
+                        </span>
+                      )}
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+          </BottomSheet>
+        )
+      })()}
 
       {/* 개발 모드 연결 상태 인디케이터 */}
       {process.env.NODE_ENV === 'development' && !isConnected && (

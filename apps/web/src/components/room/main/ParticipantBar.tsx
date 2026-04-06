@@ -11,7 +11,6 @@ interface ParticipantBarProps {
   participants: Participant[]
   me: Participant
   onOtherTap: (participantId: string) => void
-  onMeTap: () => void
   onAddTrack: () => void
   onReact: (emoji: Emoji) => void
   onCancel: (emoji: Emoji) => void
@@ -21,7 +20,6 @@ export function ParticipantBar({
   participants,
   me,
   onOtherTap,
-  onMeTap,
   onAddTrack,
   onReact,
   onCancel,
@@ -157,10 +155,3 @@ function EmojiPopup({ myReactions, onReact, onCancel, onClose }: EmojiPopupProps
   )
 }
 
-function PlusIcon() {
-  return (
-    <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
-      <path d="M7 2v10M2 7h10" stroke="currentColor" strokeWidth="2" strokeLinecap="round"/>
-    </svg>
-  )
-}

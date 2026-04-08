@@ -17,6 +17,7 @@ interface QueueListProps {
   onVote: (queueId: string) => void
   onAvatarTap: (participantId: string) => void
   onAddTrack?: () => void
+  compact?: boolean
 }
 
 export function QueueList({
@@ -30,6 +31,7 @@ export function QueueList({
   onVote,
   onAvatarTap,
   onAddTrack,
+  compact = false,
 }: QueueListProps) {
   // currentQueueId가 pending 트랙(NowPlaying에 표시 중)이면 큐에서 제외 — 중복 방지
   const pendingTracks = tracks.filter(
@@ -84,7 +86,7 @@ export function QueueList({
   }, [dragIndex, hoverIndex, pendingTracks, onReorder])
 
   return (
-    <div className="bg-[#0A0A0A] pb-28">
+    <div className={cn("bg-[#0A0A0A]", compact ? "pb-4" : "pb-28")}>
       {/* 다음 재생 헤더 */}
       <div className="px-5 pt-3 pb-2 flex items-center justify-between">
         <span className="text-[13px] font-medium text-[#606080] tracking-wider uppercase">

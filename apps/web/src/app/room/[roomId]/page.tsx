@@ -42,6 +42,7 @@ export default function RoomPage() {
 
   const [showInvite, setShowInvite] = useState(false)
   const [showSettings, setShowSettings] = useState(false)
+  const [showDesktopMenu, setShowDesktopMenu] = useState(false)
   const [participantTracksId, setParticipantTracksId] = useState<string | null>(null)
   const [myVotes, setMyVotes] = useState<string[]>([])
 
@@ -440,7 +441,8 @@ export default function RoomPage() {
         <div
           className="relative"
           style={{
-            width: 960, height: 720,
+            width: 'min(960px, calc(100vw - 80px))',
+            aspectRatio: '4/3',
             background: '#0A0A0A',
             borderRadius: 24,
             border: '7px solid #3a3a3c',
@@ -481,6 +483,7 @@ export default function RoomPage() {
             }}>
               {currentTrack ? (
                 <NowPlaying
+                  compact
                   track={currentTrack}
                   isPlaying={isActuallyPlaying}
                   positionSec={playingTrack ? positionSec : 0}
@@ -541,31 +544,13 @@ export default function RoomPage() {
                   {room.name}
                 </span>
 
-                {/* 초대 버튼 */}
-                <button
-                  onClick={() => setShowInvite(true)}
-                  style={{
-                    width: 30, height: 30, borderRadius: '50%', flexShrink: 0,
-                    background: 'rgba(255,255,255,0.06)',
-                    border: '0.5px solid rgba(255,255,255,0.1)',
-                    display: 'flex', alignItems: 'center', justifyContent: 'center',
-                    cursor: 'pointer', color: '#A0A0C0',
-                  }}
-                >
-                  <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
-                    <path d="M7 7a2.5 2.5 0 1 0 0-5 2.5 2.5 0 0 0 0 5Z" fill="currentColor" opacity=".7"/>
-                    <path d="M1.5 12c0-2.5 2.5-4.5 5.5-4.5" stroke="currentColor" strokeWidth="1.2" strokeLinecap="round"/>
-                    <path d="M11 9v4M9 11h4" stroke="currentColor" strokeWidth="1.2" strokeLinecap="round"/>
-                  </svg>
-                </button>
-
-                {/* 더보기 (설정) 버튼 — 방장만 */}
-                {permissions.canManageRoom && (
+                {/* 더보기 드롭다운 — 모든 유저에게 표시 */}
+                <div style={{ position: 'relative', flexShrink: 0 }}>
                   <button
-                    onClick={() => setShowSettings(true)}
+                    onClick={() => setShowDesktopMenu(!showDesktopMenu)}
                     style={{
-                      width: 30, height: 30, borderRadius: '50%', flexShrink: 0,
-                      background: 'rgba(255,255,255,0.06)',
+                      width: 30, height: 30, borderRadius: '50%',
+                      background: showDesktopMenu ? 'rgba(255,255,255,0.1)' : 'rgba(255,255,255,0.06)',
                       border: '0.5px solid rgba(255,255,255,0.1)',
                       display: 'flex', alignItems: 'center', justifyContent: 'center',
                       cursor: 'pointer', color: '#A0A0C0',
@@ -577,15 +562,88 @@ export default function RoomPage() {
                       <circle cx="7" cy="11" r="1.2" fill="currentColor"/>
                     </svg>
                   </button>
-                )}
+
+                  {showDesktopMenu && (
+                    <>
+                      {/* 닫기 오버레이 */}
+                      <div
+                        style={{ position: 'fixed', inset: 0, zIndex: 9 }}
+                        onClick={() => setShowDesktopMenu(false)}
+                      />
+                      {/* 드롭다운 메뉴 */}
+                      <div style={{
+                        position: 'absolute', top: 'calc(100% + 6px)', right: 0, zIndex: 10,
+                        background: '#1A1A1A', borderRadius: 10,
+                        border: '0.5px solid rgba(255,255,255,0.1)',
+                        minWidth: 140, overflow: 'hidden',
+                        boxShadow: '0 8px 24px rgba(0,0,0,0.5)',
+                      }}>
+                        {/* 초대 */}
+                        <button
+                          onClick={() => { setShowInvite(true); setShowDesktopMenu(false) }}
+                          style={{
+                            width: '100%', padding: '10px 14px', textAlign: 'left',
+                            fontSize: 13, color: '#F0EEFF', background: 'none',
+                            border: 'none', cursor: 'pointer', fontFamily: 'inherit',
+                            borderBottom: '0.5px solid rgba(255,255,255,0.06)',
+                          }}
+                        >
+                          초대하기
+                        </button>
+
+                        {/* 방장: 설정 + 방 종료 */}
+                        {permissions.canManageRoom && (
+                          <>
+                            <button
+                              onClick={() => { setShowSettings(true); setShowDesktopMenu(false) }}
+                              style={{
+                                width: '100%', padding: '10px 14px', textAlign: 'left',
+                                fontSize: 13, color: '#F0EEFF', background: 'none',
+                                border: 'none', cursor: 'pointer', fontFamily: 'inherit',
+                                borderBottom: '0.5px solid rgba(255,255,255,0.06)',
+                              }}
+                            >
+                              방 설정
+                            </button>
+                            <button
+                              onClick={() => { api.delete(`/api/rooms/${roomId}`); setShowDesktopMenu(false) }}
+                              style={{
+                                width: '100%', padding: '10px 14px', textAlign: 'left',
+                                fontSize: 13, color: '#E24B4A', background: 'none',
+                                border: 'none', cursor: 'pointer', fontFamily: 'inherit',
+                              }}
+                            >
+                              방 종료
+                            </button>
+                          </>
+                        )}
+
+                        {/* 비방장: 나가기 */}
+                        {!permissions.canManageRoom && (
+                          <button
+                            onClick={() => { handleLeave(); setShowDesktopMenu(false) }}
+                            style={{
+                              width: '100%', padding: '10px 14px', textAlign: 'left',
+                              fontSize: 13, color: '#E24B4A', background: 'none',
+                              border: 'none', cursor: 'pointer', fontFamily: 'inherit',
+                            }}
+                          >
+                            방 나가기
+                          </button>
+                        )}
+                      </div>
+                    </>
+                  )}
+                </div>
               </div>
 
-              {/* ② 큐 리스트 */}
+              {/* ② 큐 리스트 + EmojiStack 인라인 오버레이 */}
               <div
-                style={{ flex: 1, overflowY: 'auto', padding: '8px 0' }}
+                style={{ flex: 1, overflowY: 'auto', padding: '8px 0', position: 'relative' }}
                 className="scrollbar-hide"
               >
                 <QueueList
+                  compact
                   tracks={tracks}
                   currentQueueId={currentTrack?.queueId ?? null}
                   canReorder={permissions.canReorder}
@@ -597,6 +655,7 @@ export default function RoomPage() {
                   onVote={handleVote}
                   onAvatarTap={(id) => setParticipantTracksId(id)}
                 />
+                <EmojiStack inline onReact={handleReact} onCancel={handleCancel} />
               </div>
 
               {/* ③ 하단 캐릭터 존 */}

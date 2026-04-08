@@ -11,6 +11,7 @@ interface NowPlayingProps {
   isPending?: boolean   // 재생 전 대기 곡 — 진행바 숨김
   canControl: boolean
   canSkip: boolean
+  compact?: boolean     // 데스크탑 패널 전체 높이 채움
   onPlay: () => void
   onSkip: () => void
   onAvatarTap?: (participantId: string) => void
@@ -23,6 +24,7 @@ export function NowPlaying({
   isPending = false,
   canControl,
   canSkip,
+  compact = false,
   onPlay,
   onSkip,
 }: NowPlayingProps) {
@@ -179,15 +181,15 @@ export function NowPlaying({
   const onTouchEnd = resetCard
 
   return (
-    <div className="px-5 pt-4 pb-2 bg-[#0A0A0A]">
+    <div className={compact ? 'flex flex-col h-full bg-[#0A0A0A]' : 'px-5 pt-4 pb-2 bg-[#0A0A0A]'}>
       {/* 앨범 커버 — 홀로그램 카드 */}
       <div
-        style={{ perspective: '600px', cursor: 'pointer' }}
+        style={{ perspective: '600px', cursor: 'pointer', flex: compact ? 1 : undefined, minHeight: 0 }}
         onMouseMove={onMouseMove}
         onMouseLeave={onMouseLeave}
         onTouchMove={onTouchMove}
         onTouchEnd={onTouchEnd}
-        className="w-full mb-4"
+        className={compact ? 'px-5 pt-4' : 'w-full mb-4'}
       >
         <div
           ref={cardRef}
@@ -198,8 +200,9 @@ export function NowPlaying({
             transform: 'rotateX(0) rotateY(0)',
             transition: 'transform 0.08s linear',
             overflow: 'hidden',
-            aspectRatio: '1',
+            aspectRatio: compact ? 'unset' : '1',
             width: '100%',
+            height: compact ? '100%' : undefined,
           }}
         >
           {/* 베이스 Canvas */}
@@ -291,55 +294,58 @@ export function NowPlaying({
         </div>
       </div>
 
-      {/* 프로그레스 바 — pending 상태(아직 재생 전)면 숨김 */}
-      {!isPending && (
-        <div className="mb-3">
-          <div className="h-1 bg-white/10 rounded-full overflow-hidden">
-            <div
-              className="h-full bg-[#A89EF5] rounded-full transition-all duration-1000"
-              style={{ width: `${progress * 100}%` }}
-            />
+      {/* 프로그레스 + 컨트롤 — compact 모드에서는 flex-shrink-0으로 하단 고정 */}
+      <div className={compact ? 'flex-shrink-0 px-5 pb-2' : ''}>
+        {/* 프로그레스 바 — pending 상태(아직 재생 전)면 숨김 */}
+        {!isPending && (
+          <div className="mb-3">
+            <div className="h-1 bg-white/10 rounded-full overflow-hidden">
+              <div
+                className="h-full bg-[#A89EF5] rounded-full transition-all duration-1000"
+                style={{ width: `${progress * 100}%` }}
+              />
+            </div>
+            <div className="flex justify-between mt-1.5">
+              <span className="text-[11px] text-white/30">{formatDuration(positionSec)}</span>
+              <span className="text-[11px] text-white/30">{formatDuration(track.durationSec)}</span>
+            </div>
           </div>
-          <div className="flex justify-between mt-1.5">
-            <span className="text-[11px] text-white/30">{formatDuration(positionSec)}</span>
-            <span className="text-[11px] text-white/30">{formatDuration(track.durationSec)}</span>
-          </div>
+        )}
+        {isPending && <div className="mb-3" />}
+
+        {/* 컨트롤 */}
+        <div className="flex items-center justify-center gap-6 pb-2">
+          {/* 재생/정지 */}
+          <button
+            onClick={canControl ? onPlay : undefined}
+            disabled={!canControl}
+            className="w-14 h-14 rounded-full bg-[#A89EF5] flex items-center justify-center
+                       disabled:opacity-40 active:opacity-80 transition-opacity"
+          >
+            {isPlaying ? (
+              <svg width="22" height="22" viewBox="0 0 22 22" fill="none">
+                <rect x="6" y="5" width="3.5" height="12" rx="1.5" fill="#0A0A0A"/>
+                <rect x="12.5" y="5" width="3.5" height="12" rx="1.5" fill="#0A0A0A"/>
+              </svg>
+            ) : (
+              <svg width="22" height="22" viewBox="0 0 22 22" fill="none">
+                <path d="M7 5l10 6-10 6V5z" fill="#0A0A0A"/>
+              </svg>
+            )}
+          </button>
+
+          {/* 스킵 */}
+          <button
+            onClick={canSkip ? onSkip : undefined}
+            disabled={!canSkip}
+            className="text-white/70 active:opacity-60 disabled:opacity-25"
+          >
+            <svg width="28" height="28" viewBox="0 0 28 28" fill="none">
+              <path d="M15 7l6 7-6 7V7z" fill="currentColor"/>
+              <rect x="7" y="7" width="3" height="14" rx="1.5" fill="currentColor"/>
+            </svg>
+          </button>
         </div>
-      )}
-      {isPending && <div className="mb-3" />}
-
-      {/* 컨트롤 */}
-      <div className="flex items-center justify-center gap-6 pb-2">
-        {/* 재생/정지 */}
-        <button
-          onClick={canControl ? onPlay : undefined}
-          disabled={!canControl}
-          className="w-14 h-14 rounded-full bg-[#A89EF5] flex items-center justify-center
-                     disabled:opacity-40 active:opacity-80 transition-opacity"
-        >
-          {isPlaying ? (
-            <svg width="22" height="22" viewBox="0 0 22 22" fill="none">
-              <rect x="6" y="5" width="3.5" height="12" rx="1.5" fill="#0A0A0A"/>
-              <rect x="12.5" y="5" width="3.5" height="12" rx="1.5" fill="#0A0A0A"/>
-            </svg>
-          ) : (
-            <svg width="22" height="22" viewBox="0 0 22 22" fill="none">
-              <path d="M7 5l10 6-10 6V5z" fill="#0A0A0A"/>
-            </svg>
-          )}
-        </button>
-
-        {/* 스킵 */}
-        <button
-          onClick={canSkip ? onSkip : undefined}
-          disabled={!canSkip}
-          className="text-white/70 active:opacity-60 disabled:opacity-25"
-        >
-          <svg width="28" height="28" viewBox="0 0 28 28" fill="none">
-            <path d="M15 7l6 7-6 7V7z" fill="currentColor"/>
-            <rect x="7" y="7" width="3" height="14" rx="1.5" fill="currentColor"/>
-          </svg>
-        </button>
       </div>
     </div>
   )

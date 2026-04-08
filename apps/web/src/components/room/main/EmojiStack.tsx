@@ -5,18 +5,23 @@ import { cn } from '@/lib/utils'
 import type { Emoji } from '@/types'
 
 interface EmojiStackProps {
+  inline?: boolean
   onReact: (emoji: Emoji) => void
   onCancel: (emoji: Emoji) => void
 }
 
-export function EmojiStack({ onReact, onCancel }: EmojiStackProps) {
+export function EmojiStack({ inline = false, onReact, onCancel }: EmojiStackProps) {
   const stack = useReactionStore((s) => s.stack)
 
   if (stack.length === 0) return null
 
+  const positionClass = inline
+    ? 'absolute inset-x-0 top-0 z-10 px-4 py-2 flex gap-2 flex-wrap pointer-events-none'
+    : 'fixed top-[52px] left-0 right-0 z-20 px-4 py-2 flex gap-2 flex-wrap pointer-events-none'
+
   return (
-    <div className="fixed top-[52px] left-0 right-0 z-20 px-4 py-2 flex gap-2 flex-wrap pointer-events-none"
-         style={{ maxWidth: 430, margin: '0 auto' }}>
+    <div className={positionClass}
+         style={inline ? undefined : { maxWidth: 430, margin: '0 auto' }}>
       {stack.map(({ emoji, count, myReacted }) => (
         <button
           key={emoji}

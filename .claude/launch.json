@@ -3,10 +3,9 @@
   "configurations": [
     {
       "name": "web",
-      "runtimeExecutable": "npm",
-      "runtimeArgs": ["run", "dev"],
-      "port": 3000,
-      "env": {}
+      "runtimeExecutable": "pnpm",
+      "runtimeArgs": ["--filter", "web", "dev"],
+      "port": 3000
     }
   ]
 }

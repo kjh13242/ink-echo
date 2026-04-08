@@ -10,6 +10,7 @@ import type { Participant, Emoji } from '@/types'
 interface ParticipantBarProps {
   participants: Participant[]
   me: Participant
+  hasCurrentTrack?: boolean
   onOtherTap: (participantId: string) => void
   onAddTrack: () => void
   onReact: (emoji: Emoji) => void
@@ -18,6 +19,7 @@ interface ParticipantBarProps {
 
 export function ParticipantBar({
   participants,
+  hasCurrentTrack = false,
   me,
   onOtherTap,
   onAddTrack,
@@ -68,22 +70,24 @@ export function ParticipantBar({
           ))}
         </div>
 
-        {/* 곡 추가 버튼 */}
-        <button
-          onClick={onAddTrack}
-          className="active:opacity-80 transition-opacity flex-shrink-0"
-          style={{
-            height: 40, borderRadius: 10, background: '#7F77DD', color: 'white',
-            fontSize: 13, fontWeight: 500, padding: '0 14px', display: 'flex',
-            alignItems: 'center', justifyContent: 'center', gap: 4, fontFamily: 'inherit'
-          }}
-        >
-          <svg width="9" height="9" viewBox="0 0 12 12" fill="none">
-            <line x1="6" y1="1" x2="6" y2="11" stroke="white" strokeWidth="1.4" strokeLinecap="round"/>
-            <line x1="1" y1="6" x2="11" y2="6" stroke="white" strokeWidth="1.4" strokeLinecap="round"/>
-          </svg>
-          곡 추가하기
-        </button>
+        {/* 곡 추가 버튼 — 큐에 곡이 없을 때만 표시 (있으면 QueueList EmptyState에서 제공) */}
+        {!hasCurrentTrack && (
+          <button
+            onClick={onAddTrack}
+            className="active:opacity-80 transition-opacity flex-shrink-0"
+            style={{
+              height: 40, borderRadius: 10, background: '#7F77DD', color: 'white',
+              fontSize: 13, fontWeight: 500, padding: '0 14px', display: 'flex',
+              alignItems: 'center', justifyContent: 'center', gap: 4, fontFamily: 'inherit'
+            }}
+          >
+            <svg width="9" height="9" viewBox="0 0 12 12" fill="none">
+              <line x1="6" y1="1" x2="6" y2="11" stroke="white" strokeWidth="1.4" strokeLinecap="round"/>
+              <line x1="1" y1="6" x2="11" y2="6" stroke="white" strokeWidth="1.4" strokeLinecap="round"/>
+            </svg>
+            곡 추가하기
+          </button>
+        )}
       </div>
 
       {/* 이모지 팝업 */}

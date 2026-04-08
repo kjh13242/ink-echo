@@ -221,7 +221,13 @@ export async function roomRoutes(app: FastifyInstance) {
         inviteUrl: `${process.env.CORS_ORIGIN}/join/${room.code}`,
       },
       queue: queueRows.rows,
-      participants: participantRows.rows,
+      participants: participantRows.rows.map((p) => ({
+        participantId: p.id,
+        nickname:      p.nickname,
+        avatar:        p.avatar,
+        isHost:        p.is_host,
+        joinOrder:     p.join_order,
+      })),
       playback: playbackRaw,
     }))
   })

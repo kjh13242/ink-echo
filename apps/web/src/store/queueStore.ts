@@ -35,16 +35,23 @@ export const useQueueStore = create<QueueState>((set) => ({
 
   reorderTrack: (queueId, newPosition) =>
     set((state) => {
-      const tracks = [...state.tracks]
-      const idx = tracks.findIndex((t) => t.queueId === queueId)
-      if (idx === -1) return state
+      const moved = state.tracks.find((t) => t.queueId === queueId)
+      if (!moved) return state
 
-      const [moved] = tracks.splice(idx, 1)
-      tracks.splice(newPosition, 0, moved)
+      const oldPosition = moved.position
+      if (oldPosition === newPosition) return state
 
-      // position 재계산
-      const reindexed = tracks.map((t, i) => ({ ...t, position: i }))
-      return { tracks: reindexed }
+      // 서버 DB shifting 로직과 동일하게 적용 (position 값 보존)
+      const tracks = state.tracks.map((t) => {
+        if (t.queueId === queueId) return { ...t, position: newPosition }
+        if (newPosition > oldPosition && t.position > oldPosition && t.position <= newPosition)
+          return { ...t, position: t.position - 1 }
+        if (newPosition < oldPosition && t.position >= newPosition && t.position < oldPosition)
+          return { ...t, position: t.position + 1 }
+        return t
+      })
+
+      return { tracks: [...tracks].sort((a, b) => a.position - b.position) }
     }),
 
   updateTrackStatus: (queueId, status) =>

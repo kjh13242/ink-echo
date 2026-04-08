@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useRef } from 'react'
+import { useState, useRef, useCallback } from 'react'
 import { Avatar } from '@/components/common/Avatar'
 import { EmptyState } from '@/components/common/EmptyState'
 import { cn, formatDuration } from '@/lib/utils'
@@ -36,6 +36,53 @@ export function QueueList({
     (t) => t.status === 'pending' && t.queueId !== currentQueueId
   )
 
+  // ── 드래그 상태 ───────────────────────────────────────
+  const [dragIndex, setDragIndex] = useState<number | null>(null)  // 원본 인덱스
+  const [hoverIndex, setHoverIndex] = useState<number | null>(null) // 현재 드롭 위치
+  const itemRefs = useRef<(HTMLDivElement | null)[]>([])
+
+  // 드래그 중 화면에 보이는 순서 (시각적 미리보기)
+  const orderedTracks = (() => {
+    if (dragIndex === null || hoverIndex === null || dragIndex === hoverIndex)
+      return pendingTracks
+    const arr = [...pendingTracks]
+    const [moved] = arr.splice(dragIndex, 1)
+    arr.splice(hoverIndex, 0, moved)
+    return arr
+  })()
+
+  // clientY를 받아서 몇 번째 슬롯 위에 있는지 계산
+  const getHoverIdx = useCallback((clientY: number) => {
+    const items = itemRefs.current
+    for (let i = 0; i < items.length; i++) {
+      const el = items[i]
+      if (!el) continue
+      const rect = el.getBoundingClientRect()
+      if (clientY < rect.top + rect.height / 2) return i
+    }
+    return Math.max(0, items.length - 1)
+  }, [])
+
+  const startDrag = useCallback((idx: number) => {
+    setDragIndex(idx)
+    setHoverIndex(idx)
+  }, [])
+
+  const moveDrag = useCallback((clientY: number) => {
+    if (dragIndex === null) return
+    setHoverIndex(getHoverIdx(clientY))
+  }, [dragIndex, getHoverIdx])
+
+  const endDrag = useCallback(() => {
+    if (dragIndex !== null && hoverIndex !== null && dragIndex !== hoverIndex) {
+      const draggedQueueId = pendingTracks[dragIndex].queueId
+      const targetPosition  = pendingTracks[hoverIndex].position
+      onReorder(draggedQueueId, targetPosition)
+    }
+    setDragIndex(null)
+    setHoverIndex(null)
+  }, [dragIndex, hoverIndex, pendingTracks, onReorder])
+
   return (
     <div className="bg-[#0A0A0A] pb-28">
       {/* 다음 재생 헤더 */}
@@ -60,21 +107,37 @@ export function QueueList({
           />
         </div>
       ) : (
-        <div className="px-5 flex flex-col gap-1">
-          {pendingTracks.map((track, idx) => (
-            <QueueTrackItem
-              key={track.queueId}
-              track={track}
-              index={idx}
-              isNext={idx === 0}
-              canReorder={canReorder}
-              canVote={canVote}
-              hasVoted={myVotes.includes(track.queueId)}
-              onRemove={() => onRemove(track.queueId)}
-              onVote={() => onVote(track.queueId)}
-              onAvatarTap={() => onAvatarTap(track.addedBy.participantId)}
-            />
-          ))}
+        <div className="px-5 flex flex-col gap-1 select-none">
+          {orderedTracks.map((track, visualIdx) => {
+            // 원본 배열에서 이 트랙이 몇 번째였는지 (드래그 상태 판단용)
+            const origIdx = pendingTracks.findIndex((t) => t.queueId === track.queueId)
+            const isDragging = dragIndex !== null && origIdx === dragIndex
+
+            return (
+              <div
+                key={track.queueId}
+                ref={(el) => { itemRefs.current[visualIdx] = el }}
+              >
+                <QueueTrackItem
+                  track={track}
+                  index={visualIdx}
+                  isNext={visualIdx === 0 && dragIndex === null}
+                  isDragging={isDragging}
+                  isDropTarget={hoverIndex === visualIdx && dragIndex !== null && !isDragging}
+                  canReorder={canReorder}
+                  canVote={canVote}
+                  hasVoted={myVotes.includes(track.queueId)}
+                  onRemove={() => onRemove(track.queueId)}
+                  onVote={() => onVote(track.queueId)}
+                  onAvatarTap={() => onAvatarTap(track.addedBy.participantId)}
+                  onDragHandlePointerDown={startDrag}
+                  onDragHandlePointerMove={moveDrag}
+                  onDragHandlePointerUp={endDrag}
+                  origIdx={origIdx}
+                />
+              </div>
+            )
+          })}
         </div>
       )}
     </div>
@@ -85,23 +148,35 @@ interface QueueTrackItemProps {
   track: QueueTrack
   index: number
   isNext: boolean
+  isDragging: boolean
+  isDropTarget: boolean
   canReorder: boolean
   canVote: boolean
   hasVoted: boolean
   onRemove: () => void
   onVote: () => void
   onAvatarTap: () => void
+  onDragHandlePointerDown: (idx: number) => void
+  onDragHandlePointerMove: (clientY: number) => void
+  onDragHandlePointerUp: () => void
+  origIdx: number
 }
 
 function QueueTrackItem({
   track,
   isNext,
+  isDragging,
+  isDropTarget,
   canReorder,
   canVote,
   hasVoted,
+  origIdx,
   onRemove,
   onVote,
   onAvatarTap,
+  onDragHandlePointerDown,
+  onDragHandlePointerMove,
+  onDragHandlePointerUp,
 }: QueueTrackItemProps) {
   const [removing, setRemoving] = useState(false)
   const isUnavailable = track.status === 'unavailable'
@@ -114,19 +189,21 @@ function QueueTrackItem({
   return (
     <div
       className={cn(
-        'flex items-center gap-3 px-3 py-2.5 rounded-xl transition-all duration-200',
-        isNext
+        'flex items-center gap-3 px-3 py-2.5 rounded-xl transition-all duration-150',
+        isNext && !isDragging
           ? 'bg-[rgba(168,158,245,0.08)] border border-[rgba(168,158,245,0.2)]'
           : 'bg-white/[0.03]',
         isUnavailable && 'opacity-45',
-        removing && 'opacity-0 translate-x-2'
+        removing && 'opacity-0 translate-x-2',
+        isDragging && 'opacity-40 scale-[0.98]',
+        isDropTarget && 'ring-1 ring-[#A89EF5]/40 bg-[rgba(168,158,245,0.05)]',
       )}
     >
       {/* 다음 재생 인디케이터 바 */}
       <div
         className={cn(
           'w-[3px] h-8 rounded-full flex-shrink-0',
-          isNext ? 'bg-[#A89EF5]' : 'bg-transparent'
+          isNext && !isDragging ? 'bg-[#A89EF5]' : 'bg-transparent'
         )}
       />
 
@@ -147,7 +224,7 @@ function QueueTrackItem({
       <div className="flex-1 min-w-0">
         <p className={cn(
           'text-[14px] font-medium truncate',
-          isNext ? 'text-[#A89EF5]' : 'text-[#F0EEFF]'
+          isNext && !isDragging ? 'text-[#A89EF5]' : 'text-[#F0EEFF]'
         )}>
           {track.title}
         </p>
@@ -189,14 +266,27 @@ function QueueTrackItem({
         </button>
       )}
 
-      {/* 드래그 핸들 */}
+      {/* 드래그 핸들 — pointer events로 터치/마우스 모두 처리 */}
       {canReorder && !isUnavailable && (
-        <div className="text-[#404060] cursor-grab active:cursor-grabbing flex-shrink-0">
+        <div
+          className="text-[#505070] cursor-grab active:cursor-grabbing flex-shrink-0
+                     w-[44px] h-[44px] flex items-center justify-center -mr-2 touch-none"
+          onPointerDown={(e) => {
+            e.preventDefault()
+            e.currentTarget.setPointerCapture(e.pointerId)
+            onDragHandlePointerDown(origIdx)
+          }}
+          onPointerMove={(e) => {
+            onDragHandlePointerMove(e.clientY)
+          }}
+          onPointerUp={onDragHandlePointerUp}
+          onPointerCancel={onDragHandlePointerUp}
+        >
           <DragIcon />
         </div>
       )}
 
-      {/* 삭제 버튼 — 터치 타겟 44px, 시각 크기는 유지 */}
+      {/* 삭제 버튼 — 터치 타겟 44px */}
       <button
         onClick={handleRemove}
         className="flex-shrink-0 w-[44px] h-[44px] flex items-center justify-center active:scale-95 transition-transform -mr-2"
@@ -230,9 +320,12 @@ function VoteIcon() {
 function DragIcon() {
   return (
     <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
-      <rect x="4" y="4" width="8" height="1.5" rx=".75" fill="currentColor"/>
-      <rect x="4" y="7.25" width="8" height="1.5" rx=".75" fill="currentColor"/>
-      <rect x="4" y="10.5" width="8" height="1.5" rx=".75" fill="currentColor"/>
+      <circle cx="5.5" cy="4.5" r="1.2" fill="currentColor"/>
+      <circle cx="5.5" cy="8" r="1.2" fill="currentColor"/>
+      <circle cx="5.5" cy="11.5" r="1.2" fill="currentColor"/>
+      <circle cx="10.5" cy="4.5" r="1.2" fill="currentColor"/>
+      <circle cx="10.5" cy="8" r="1.2" fill="currentColor"/>
+      <circle cx="10.5" cy="11.5" r="1.2" fill="currentColor"/>
     </svg>
   )
 }

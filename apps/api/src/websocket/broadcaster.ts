@@ -25,6 +25,16 @@ export function removeConnection(roomId: string, participantId: string) {
   redis.sRem(RedisKey.wsConns(roomId), participantId)
 }
 
+// 현재 등록된 WS가 이 인스턴스인지 확인
+// (재연결 시 close 이벤트가 늦게 오면 새 연결을 덮어쓰지 않도록)
+export function isActiveConnection(
+  roomId: string,
+  participantId: string,
+  ws: WebSocket
+): boolean {
+  return roomConnections.get(roomId)?.get(participantId) === ws
+}
+
 // 방 전체에 이벤트 브로드캐스트
 export function broadcast(
   roomId: string,

@@ -87,7 +87,19 @@ export default function RoomPage() {
         }
         setTracks(payload.queue ?? [])
         // 재연결 시 참여자 목록 서버 기준으로 덮어쓰기 (나간 사람 제거)
-        if (payload.participants) setParticipants(payload.participants)
+        // 서버가 빈 배열을 돌려주는 레이스 케이스에도 현재 사용자는 보존
+        if (payload.participants) {
+          const list = payload.participants
+          const hasSelf = list.some((p) => p.participantId === session?.participantId)
+          if (hasSelf) {
+            setParticipants(list)
+          } else if (list.length > 0) {
+            // 본인이 빠진 경우 기존 목록에서 본인 항목을 유지하고 나머지를 교체
+            const selfEntry = participants.find((p) => p.participantId === session?.participantId)
+            setParticipants(selfEntry ? [selfEntry, ...list.filter((p) => p.participantId !== session?.participantId)] : list)
+          }
+          // list가 빈 배열이면 setParticipants 호출 안 함 — 기존 목록 유지
+        }
         // 재연결 시 서버 상태 복원
         syncFromServer({
           isPlaying: payload.playback?.is_playing === 'true',
@@ -198,7 +210,8 @@ export default function RoomPage() {
       reorderTrack, updateTrackStatus, setPlaying, setAdDuration, setTracks,
       syncFromServer, addReaction, removeReaction, updateVoteCount,
       setParticipants, addParticipant, removeParticipant, transferHost, updateSettings,
-      clearRoom, clearPlayback, clearStack, router, showToast])
+      clearRoom, clearPlayback, clearStack, router, showToast,
+      participants, session])
 
   // WebSocket 연결
   const { isConnected } = useWebSocket({
@@ -231,7 +244,16 @@ export default function RoomPage() {
   const firstPendingTrack = tracks.find((t) => t.status === 'pending') ?? null
   const currentTrack = playingTrack ?? firstPendingTrack
   const isActuallyPlaying = isPlaying && !!playingTrack
-  const me = participants.find((p) => p.participantId === session.participantId)
+  // WS 연결 전 / 재연결 중에도 ParticipantBar가 사라지지 않도록
+  // participants 목록에 본인이 없으면 session 데이터로 임시 fallback
+  const meFromList = participants.find((p) => p.participantId === session.participantId)
+  const me = meFromList ?? {
+    participantId: session.participantId,
+    nickname: '나',
+    avatar: 'purple' as const,
+    isHost: session.isHost,
+    joinOrder: 0,
+  }
   const others = participants.filter((p) => p.participantId !== session.participantId)
 
   return (
@@ -376,21 +398,20 @@ export default function RoomPage() {
         />}
       </div>
 
-      {/* 하단 캐릭터 존 */}
-      {me && (
-        <ParticipantBar
-          participants={others}
-          me={me}
-          onOtherTap={(id) => setParticipantTracksId(id)}
-          onAddTrack={() => router.push(`/room/${roomId}/add`)}
-          onReact={async (emoji) => {
-            await api.post(`/api/rooms/${roomId}/reactions`, { emoji })
-          }}
-          onCancel={async (emoji) => {
-            await api.delete(`/api/rooms/${roomId}/reactions/${encodeURIComponent(emoji)}`)
-          }}
-        />
-      )}
+      {/* 하단 캐릭터 존 — 항상 표시 (WS 연결 전에도) */}
+      <ParticipantBar
+        participants={others}
+        me={me}
+        hasCurrentTrack={!!currentTrack}
+        onOtherTap={(id) => setParticipantTracksId(id)}
+        onAddTrack={() => router.push(`/room/${roomId}/add`)}
+        onReact={async (emoji) => {
+          await api.post(`/api/rooms/${roomId}/reactions`, { emoji })
+        }}
+        onCancel={async (emoji) => {
+          await api.delete(`/api/rooms/${roomId}/reactions/${encodeURIComponent(emoji)}`)
+        }}
+      />
 
       {/* 이모지 반응 — 항상 상단 고정, 스크롤에 영향 안 받음 */}
       <EmojiStack

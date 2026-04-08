@@ -6,6 +6,7 @@ import { query } from '../db/client'
 import {
   registerConnection,
   removeConnection,
+  isActiveConnection,
   broadcast,
   sendTo,
 } from './broadcaster'
@@ -47,6 +48,14 @@ export async function wsHandler(
     roomId,
     connectedAt: Date.now(),
   }))
+
+  // 재연결 시 status='left'였을 수 있으므로 'active'로 복원
+  // (페이지 이탈 → WS close → status='left' → 재접속 시 복원)
+  await query(
+    `UPDATE participants SET status = 'active', left_at = NULL
+     WHERE id = $1 AND room_id = $2`,
+    [participantId, roomId]
+  )
 
   // ── 연결 완료 — 현재 상태 전송 ───────────────────
   const [playbackRaw, queueRows, participantRows] = await Promise.all([
@@ -131,8 +140,16 @@ export async function wsHandler(
 
   // ── 연결 종료 ──────────────────────────────────────
   ws.on('close', async () => {
-    removeConnection(roomId, participantId)
-    await redis.del(RedisKey.wsConn(participantId))
+    // 재연결 레이스 방지: 이미 새 연결로 교체된 경우 퇴장 처리 스킵
+    // (navigating away → new WS connects → old WS close arrives late)
+    const stillActive = isActiveConnection(roomId, participantId, ws)
+    if (stillActive) {
+      removeConnection(roomId, participantId)
+      await redis.del(RedisKey.wsConn(participantId))
+    } else {
+      // 새 연결이 있으므로 아무것도 안 함 — status는 이미 'active'로 복원됨
+      return
+    }
 
     // 참여자 퇴장 처리
     await query(

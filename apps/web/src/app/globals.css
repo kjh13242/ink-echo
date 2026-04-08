@@ -75,6 +75,12 @@ body {
     repeating-linear-gradient(90deg, transparent, transparent 7px, var(--bg-pattern-line) 7px, var(--bg-pattern-line) 8px);
 }
 
+/* 데스크탑 배경 도트 그리드 */
+.dot-grid {
+  background-image: radial-gradient(circle, rgba(255,255,255,0.07) 1px, transparent 1px);
+  background-size: 24px 24px;
+}
+
 .scrollbar-hide {
   -ms-overflow-style: none;
   scrollbar-width: none;

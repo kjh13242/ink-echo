@@ -1,6 +1,9 @@
 import type { ApiResponse } from '@/types'
 
-const BASE_URL = process.env.NEXT_PUBLIC_API_URL ?? 'http://localhost:4000'
+// 브라우저 환경에서 NEXT_PUBLIC_API_URL 없으면 상대경로 사용 (next.config rewrite 경유)
+// 서버 환경(SSR)에서는 localhost:4000 직접 연결
+const BASE_URL = process.env.NEXT_PUBLIC_API_URL ??
+  (typeof window !== 'undefined' ? '' : 'http://localhost:4000')
 
 // session_token을 로컬스토리지에서 가져옴
 function getToken(): string | null {
@@ -27,7 +30,10 @@ async function request<T>(
   const { params, ...fetchOptions } = options
 
   // 쿼리스트링 처리
-  const url = new URL(`${BASE_URL}${path}`)
+  const rawUrl = `${BASE_URL}${path}`
+  const url = BASE_URL
+    ? new URL(rawUrl)
+    : new URL(rawUrl, typeof window !== 'undefined' ? window.location.origin : 'http://localhost:3000')
   if (params) {
     Object.entries(params).forEach(([k, v]) => {
       url.searchParams.set(k, String(v))

@@ -1,5 +1,5 @@
 // ─── 아바타 ───────────────────────────────────────────────
-export type Avatar = 'purple' | 'green' | 'yellow' | 'pink'
+export type Avatar = 'la1' | 'la2' | 'la3' | 'la4' | 'la5' | 'la6' | 'la7' | 'la8'
 
 // ─── 참여자 ───────────────────────────────────────────────
 export interface Participant {

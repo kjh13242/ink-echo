@@ -7,13 +7,7 @@ import { useRoomStore } from '@/store/roomStore'
 import { useToastStore } from '@/store/toastStore'
 import { generateNickname } from '@/lib/utils'
 import type { Avatar as AvatarType, Room, Participant, Session } from '@/types'
-
-const AVATARS = [
-  { id: 'purple' as AvatarType, bg: '#EEEDFE', body: '#FFD4A8', shirt: '#7F77DD', label: '보라' },
-  { id: 'green'  as AvatarType, bg: '#E1F5EE', body: '#C8E8D0', shirt: '#1D9E75', label: '초록' },
-  { id: 'yellow' as AvatarType, bg: '#FFF8E8', body: '#FDECC8', shirt: '#F0A030', label: '노랑' },
-  { id: 'pink'   as AvatarType, bg: '#FBF0FB', body: '#F4D8F4', shirt: '#D4537E', label: '분홍' },
-]
+import { LINE_ART_IDS, LineArtAvatar, pickRandomAvatarId } from '@/components/common/LineArtAvatars'
 
 export default function JoinPage() {
   const router = useRouter()
@@ -22,7 +16,7 @@ export default function JoinPage() {
 
   const [code, setCode] = useState('')
   const [nickname, setNickname] = useState(() => generateNickname())
-  const [avatar, setAvatar] = useState<AvatarType>('purple')
+  const [avatar, setAvatar] = useState<AvatarType>(() => pickRandomAvatarId())
   const [isLoading, setIsLoading] = useState(false)
   const [codeError, setCodeError] = useState<string | null>(null)
 
@@ -148,58 +142,41 @@ export default function JoinPage() {
           )}
 
           {/* 아바타 */}
-          <div style={{ fontSize: 13, color: 'var(--text-secondary)', marginBottom: 8, fontFamily: 'inherit' }}>내 캐릭터</div>
-          <div className="flex" style={{ gap: 8, marginBottom: 8 }}>
-            {AVATARS.map((a) => (
-              <div
-                key={a.id}
-                className="flex flex-col items-center cursor-pointer"
-                style={{ gap: 3 }}
-                onClick={() => setAvatar(a.id)}
+          <div style={{ fontSize: 13, color: 'var(--text-secondary)', marginBottom: 8, fontFamily: 'inherit', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+            <span>내 캐릭터</span>
+            <button
+              onClick={() => setAvatar(pickRandomAvatarId())}
+              style={{
+                fontSize: 12, color: 'var(--text-tertiary)', background: 'none', border: 'none',
+                cursor: 'pointer', fontFamily: 'inherit', display: 'flex', alignItems: 'center', gap: 4,
+              }}
+            >
+              <svg width="12" height="12" viewBox="0 0 14 14" fill="none">
+                <path d="M12 7A5 5 0 1 1 7 2" stroke="currentColor" strokeWidth="1.3" strokeLinecap="round"/>
+                <path d="M7 2l2-2v4H5l2-2z" fill="currentColor"/>
+              </svg>
+              다시 뽑기
+            </button>
+          </div>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 10, marginBottom: 8 }}>
+            {LINE_ART_IDS.map((id) => (
+              <button
+                key={id}
+                onClick={() => setAvatar(id)}
+                style={{
+                  background: 'none', border: 'none', cursor: 'pointer', padding: 0,
+                  display: 'flex', flexDirection: 'column', alignItems: 'center',
+                }}
               >
-                <div
-                  className="relative"
-                  style={{
-                    width: 36, height: 36, borderRadius: '50%',
-                    border: `2px solid ${avatar === a.id ? 'var(--color-cta)' : 'transparent'}`,
-                  }}
-                >
-                  <svg
-                    width="36" height="36" viewBox="0 0 16 16"
-                    style={{ imageRendering: 'pixelated', borderRadius: '50%', display: 'block' }}
-                  >
-                    <rect width="16" height="16" fill={a.bg} />
-                    <rect x="3" y="4" width="10" height="4" fill={a.body} />
-                    <rect x="4" y="5" width="2" height="2" fill="#2A2660" />
-                    <rect x="10" y="5" width="2" height="2" fill="#2A2660" />
-                    <rect x="2" y="10" width="12" height="3" fill={a.shirt} />
-                  </svg>
-                  {avatar === a.id && (
-                    <div
-                      className="absolute flex items-center justify-center"
-                      style={{
-                        bottom: -2, right: -2,
-                        width: 11, height: 11, borderRadius: '50%',
-                        background: 'var(--color-cta)',
-                        border: '1.5px solid var(--bg-surface)',
-                      }}
-                    >
-                      <svg width="5" height="5" viewBox="0 0 8 8" fill="none">
-                        <path d="M1.5 4L3.5 6L6.5 2" stroke="white" strokeWidth="1.2" strokeLinecap="round" />
-                      </svg>
-                    </div>
-                  )}
+                <div style={{
+                  borderRadius: '50%', overflow: 'hidden',
+                  border: `2.5px solid ${avatar === id ? 'var(--color-cta)' : 'transparent'}`,
+                  boxShadow: avatar === id ? '0 0 0 1px rgba(127,119,221,0.3)' : 'none',
+                  transition: 'border-color 0.15s, box-shadow 0.15s',
+                }}>
+                  <LineArtAvatar id={id} size={58}/>
                 </div>
-                <span
-                  style={{
-                    fontSize: 12, fontFamily: 'inherit',
-                    color: avatar === a.id ? 'var(--color-cta)' : 'var(--text-tertiary)',
-                    fontWeight: avatar === a.id ? 500 : 400,
-                  }}
-                >
-                  {a.label}
-                </span>
-              </div>
+              </button>
             ))}
           </div>
 

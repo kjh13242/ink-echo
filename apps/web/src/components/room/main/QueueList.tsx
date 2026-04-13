@@ -103,7 +103,7 @@ export function QueueList({
         <div className="px-5 py-6">
           <EmptyState
             message="아직 아무 곡도 없어 — 첫 번째로 넣어볼래?"
-            avatarColor="purple"
+            avatarColor="la1"
             actionLabel="곡 추가하기"
             onAction={onAddTrack}
           />

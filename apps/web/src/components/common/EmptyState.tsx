@@ -11,7 +11,7 @@ interface EmptyStateProps {
 
 export function EmptyState({
   message,
-  avatarColor = 'purple',
+  avatarColor = 'la1',
   actionLabel,
   onAction,
 }: EmptyStateProps) {

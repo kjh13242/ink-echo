@@ -246,7 +246,7 @@ export default function RoomPage() {
   const me = meFromList ?? {
     participantId: session.participantId,
     nickname: '나',
-    avatar: 'purple' as const,
+    avatar: 'la1' as const,
     isHost: session.isHost,
     joinOrder: 0,
   }

@@ -1,15 +1,8 @@
 import { cn } from '@/lib/utils'
+import { LineArtAvatar } from './LineArtAvatars'
 import type { Avatar as AvatarType } from '@/types'
 
-const AVATAR_COLORS: Record<AvatarType, { body: string; shirt: string }> = {
-  purple: { body: '#FFD4A8', shirt: '#7F77DD' },
-  green:  { body: '#C8E8D0', shirt: '#1D9E75' },
-  yellow: { body: '#FFE4B0', shirt: '#F0A030' },
-  pink:   { body: '#F4D8F4', shirt: '#D4537E' },
-}
-
 type Size = 'sm' | 'md' | 'lg'
-
 const SIZE_MAP: Record<Size, number> = { sm: 28, md: 36, lg: 52 }
 
 interface AvatarProps {
@@ -32,8 +25,6 @@ export function Avatar({
   className,
 }: AvatarProps) {
   const px = SIZE_MAP[size]
-  const colors = AVATAR_COLORS[color]
-  const eyeColor = '#1A1A2E'
 
   return (
     <div
@@ -64,39 +55,17 @@ export function Avatar({
         </span>
       )}
 
-      {/* 픽셀 아바타 SVG */}
+      {/* 라인아트 아바타 */}
       <div
         onClick={onClick}
         className={cn(
-          'rounded-full overflow-hidden cursor-pointer',
-          isMe && 'ring-2 ring-purple-500 ring-offset-1',
-          onClick && 'active:scale-95 transition-transform'
+          'rounded-full overflow-hidden',
+          isMe && 'ring-2 ring-purple-400 ring-offset-1 ring-offset-[#0A0A0A]',
+          onClick && 'cursor-pointer active:scale-95 transition-transform'
         )}
         style={{ width: px, height: px }}
       >
-        <svg
-          viewBox="0 0 16 16"
-          width={px}
-          height={px}
-          xmlns="http://www.w3.org/2000/svg"
-          style={{ imageRendering: 'pixelated' }}
-        >
-          {/* 배경 */}
-          <rect width="16" height="16" fill={colors.shirt} opacity="0.3" />
-          {/* 머리 */}
-          <rect x="3" y="3" width="10" height="6" rx="1" fill={colors.body} />
-          {/* 눈 왼쪽 */}
-          <rect x="5" y="5" width="2" height="2" fill={eyeColor} />
-          {/* 눈 오른쪽 */}
-          <rect x="9" y="5" width="2" height="2" fill={eyeColor} />
-          {/* 입 (웃음) */}
-          <rect x="6" y="7" width="1" height="1" fill={eyeColor} />
-          <rect x="9" y="7" width="1" height="1" fill={eyeColor} />
-          {/* 몸통/셔츠 */}
-          <rect x="2" y="10" width="12" height="4" rx="1" fill={colors.shirt} />
-          {/* 목 */}
-          <rect x="6" y="9" width="4" height="2" fill={colors.body} />
-        </svg>
+        <LineArtAvatar id={color} size={px}/>
       </div>
     </div>
   )
